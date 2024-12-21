@@ -46,7 +46,7 @@ sns.heatmap(s, annot=True)
 plt.show()
 """
 
-'''
+
 #popunjavanje nedostajucih vrednosti
 print(df.isnull().sum())
 columns_to_fill = ["feelslike", "dew", "humidity", "precip", "windspeed", "winddir", "sealevelpressure", "cloudcover", "visibility"]
@@ -62,4 +62,44 @@ for col in columns_to_fill:
     else:
         print(f"Kolona '{col}' ne postoji u DataFrame-u.")
 print(df.isnull().sum())
+
+#trazenje outliera
+def wisker(col):
+    q1, q3 = np.percentile(col, [25,75])
+    iqr = q3 - q1
+    lw = q1 - 1.5 * iqr
+    uw = q3 + 1.5 * iqr
+    return lw, uw
+
+#menjanje outliera minimalnim dopustivim vrednostima
+for i in ['temp', 'feelslike']:
+    lw, uw = wisker(df[i])
+    df[i] = np.where(df[i] < lw, lw, df[i])
+    df[i] = np.where(df[i] > uw, uw, df[i])
 '''
+#prikaz nalazenja vrednosti sa outlierima
+for i in ['temp', 'feelslike']:
+    sns.boxplot(df[i])
+    plt.show()
+    '''
+
+# Pretvaranje datetime u korisne atribute
+df['datetime'] = pd.to_datetime(df['datetime'])
+df['month'] = df['datetime'].dt.month
+df['weekday'] = df['datetime'].dt.weekday
+df['hour'] = df['datetime'].dt.hour
+
+# Dodavanje vikenda
+df['is_weekend'] = df['weekday'].isin([5, 6]).astype(int)
+df.drop(columns=['datetime'], inplace=True)
+df.drop(columns=['uvindex'], inplace=True)
+
+# Definišite prag za minimalni broj nenedostajućih vrednosti
+threshold = int(0.7 * len(df))  # Zadržava kolone koje imaju najmanje 70% nenedostajućih podataka
+
+# Uklonite kolone koje imaju previše nedostajućih podataka
+df = df.dropna(axis=1, thresh=threshold)
+
+dummy = pd.get_dummies(data=df, columns=['name', 'conditions'], drop_first=True)
+print(dummy.head().to_string())
+dummy.to_csv("new_output.csv", index=False)
