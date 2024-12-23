@@ -5,7 +5,7 @@ import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
-df = pd.read_csv("final_output.csv")
+df = pd.read_csv("C:/Energy-Consumption-Predictions/final_output.csv")
 
 #imena svih kolona iz csv i njihovi tipovi
 #print(df.info())
@@ -49,7 +49,7 @@ plt.show()
 
 #popunjavanje nedostajucih vrednosti
 print(df.isnull().sum())
-columns_to_fill = ["feelslike", "dew", "humidity", "precip", "windspeed", "winddir", "sealevelpressure", "cloudcover", "visibility"]
+columns_to_fill = ["feelslike", "dew", "humidity", "precip", "windspeed", "winddir", "sealevelpressure", "cloudcover", "visibility", "Load"]
 
 for col in columns_to_fill:
     if col in df.columns:  # Provera da li kolona postoji
@@ -102,4 +102,4 @@ df = df.dropna(axis=1, thresh=threshold)
 
 dummy = pd.get_dummies(data=df, columns=['name', 'conditions'], drop_first=True)
 print(dummy.head().to_string())
-dummy.to_csv("new_output.csv", index=False)
+dummy.to_csv("C:/Energy-Consumption-Predictions/new_output.csv", index=False)
