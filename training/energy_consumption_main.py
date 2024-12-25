@@ -11,6 +11,7 @@ SHARE_FOR_TRAINING = 0.85
 # load the dataset
 dataframe = pandas.read_csv('C:/Energy-Consumption-Predictions/new_output.csv', engine='python', sep=',')
 print(dataframe.isnull().sum())
+dataframe = dataframe.sample(frac=0.1, random_state=42)
 
 # prepare data
 preparer = CustomPreparer(dataframe, NUMBER_OF_COLUMNS, SHARE_FOR_TRAINING);
@@ -25,6 +26,8 @@ print('Training duration: ' + str((time_end - time_begin)) + ' seconds')
 
 # invert predictions
 trainPredict, trainY, testPredict, testY = preparer.inverse_transform(trainPredict, testPredict)
+print(testY)
+print(testPredict)
 
 # calculate root mean squared error
 scorer = Scorer()

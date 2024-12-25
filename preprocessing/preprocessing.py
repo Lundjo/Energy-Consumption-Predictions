@@ -6,6 +6,12 @@ matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
 df = pd.read_csv("C:/Energy-Consumption-Predictions/final_output.csv")
+df['datetime'] = pd.to_datetime(df['datetime'], errors='coerce')
+
+#brisanje praznika
+holidays = pd.read_excel("C:/Energy-Consumption-Predictions/US Holidays 2018-2021.xlsx")
+datetime_values_to_remove = pd.to_datetime(holidays.iloc[:, 2])
+df_filtered = df[~df['datetime'].dt.date.isin(datetime_values_to_remove)]
 
 #imena svih kolona iz csv i njihovi tipovi
 #print(df.info())
@@ -16,11 +22,13 @@ df = pd.read_csv("C:/Energy-Consumption-Predictions/final_output.csv")
 #broj dupliranih vrednosti
 #print(df.duplicated().sum())
 
+df = df.drop_duplicates(subset=['datetime'], keep=False)
+
 '''
 for i in df.select_dtypes(include="object").columns:
     print(df[i].value_counts())
     print("***" * 10)
-    '''
+'''
 
 #informacije o podacima u svim kolonama
 #print(df.describe().T.to_string())
@@ -55,8 +63,7 @@ for col in columns_to_fill:
     if col in df.columns:  # Provera da li kolona postoji
         df[col] = pd.to_numeric(df[col], errors='coerce')  # Konverzija u numerički format
         if df[col].notna().any():  # Provera da li postoje nenull vrednosti
-            median_value = df[col].median()  # Izračunajte median
-            df[col] = df[col].fillna(median_value)  # Popunite NaN vrednosti
+            df[col] = df[col].interpolate(method='linear', limit_direction='forward', axis=0)  # Interpolacija na osnovu susednih vrednosti
         else:
             print(f"Kolona '{col}' sadrži samo NaN vrednosti.")
     else:
