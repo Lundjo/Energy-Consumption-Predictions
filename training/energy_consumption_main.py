@@ -5,13 +5,13 @@ from custom_plotting import CustomPloting
 from custom_preparer import CustomPreparer
 from scorer import Scorer
 
-NUMBER_OF_COLUMNS = 25
+NUMBER_OF_COLUMNS = 11
 SHARE_FOR_TRAINING = 0.85
 
 # load the dataset
 dataframe = pandas.read_csv('C:/Energy-Consumption-Predictions/new_output.csv', engine='python', sep=',')
-print(dataframe.isnull().sum())
-dataframe = dataframe.sample(frac=0.1, random_state=42)
+#print(dataframe.isnull().sum())
+#dataframe = dataframe.sample(frac=0.9, random_state=42)
 
 # prepare data
 preparer = CustomPreparer(dataframe, NUMBER_OF_COLUMNS, SHARE_FOR_TRAINING);
@@ -36,5 +36,5 @@ print('Train Score: %.2f MAPE' % (trainScore))
 print('Test Score: %.2f MAPE' % (testScore))
 
 # plotting
-custom_plotting = CustomPloting()
-custom_plotting.show_plots(testPredict, testY)
+#custom_plotting = CustomPloting()
+#custom_plotting.show_plots(testPredict, testY)

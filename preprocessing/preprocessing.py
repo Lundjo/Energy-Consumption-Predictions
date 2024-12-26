@@ -63,7 +63,7 @@ for col in columns_to_fill:
     if col in df.columns:  # Provera da li kolona postoji
         df[col] = pd.to_numeric(df[col], errors='coerce')  # Konverzija u numerički format
         if df[col].notna().any():  # Provera da li postoje nenull vrednosti
-            df[col] = df[col].interpolate(method='linear', limit_direction='forward', axis=0)  # Interpolacija na osnovu susednih vrednosti
+            df[col] = df[col].interpolate(method='linear', limit_direction='both', axis=0).fillna(method='ffill')  # Interpolacija na osnovu susednih vrednosti
         else:
             print(f"Kolona '{col}' sadrži samo NaN vrednosti.")
     else:
@@ -96,10 +96,18 @@ df['month'] = df['datetime'].dt.month
 df['weekday'] = df['datetime'].dt.weekday
 df['hour'] = df['datetime'].dt.hour
 
+df['date'] = df['datetime'].dt.date  # Ekstrahovanje samo datuma
+daily_avg_temp = df.groupby('date')['temp'].mean()  # Računanje prosečne temperature po datumu
+df['prev_day_avg_temp'] = df['date'].map(daily_avg_temp.shift(1))  # Dodavanje prosečne temperature prethodnog dana
+df['prev_day_avg_temp'] = df['prev_day_avg_temp'].fillna(df['temp'])
+# Uklanjanje privremene kolone 'date' (ako nije potrebna)
+df.drop(columns=['date'], inplace=True)
+
 # Dodavanje vikenda
 df['is_weekend'] = df['weekday'].isin([5, 6]).astype(int)
 df.drop(columns=['datetime'], inplace=True)
 df.drop(columns=['uvindex'], inplace=True)
+df.drop(columns=['conditions', 'snowdepth', 'sealevelpressure', 'cloudcover', 'winddir', 'is_weekend', 'humidity', 'dew'], inplace=True)
 
 # Definišite prag za minimalni broj nenedostajućih vrednosti
 threshold = int(0.7 * len(df))  # Zadržava kolone koje imaju najmanje 70% nenedostajućih podataka
@@ -107,6 +115,8 @@ threshold = int(0.7 * len(df))  # Zadržava kolone koje imaju najmanje 70% nened
 # Uklonite kolone koje imaju previše nedostajućih podataka
 df = df.dropna(axis=1, thresh=threshold)
 
-dummy = pd.get_dummies(data=df, columns=['name', 'conditions'], drop_first=True)
+dummy = pd.get_dummies(data=df, columns=['name'], drop_first=True)
+load_column = dummy.pop('Load')  # Izvlači kolonu 'Load' iz DataFrame-a
+dummy['Load'] = load_column      # Dodaje kolonu 'Load' kao poslednju
 print(dummy.head().to_string())
 dummy.to_csv("C:/Energy-Consumption-Predictions/new_output.csv", index=False)
