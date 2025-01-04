@@ -7,7 +7,7 @@ class CustomPreparer:
         self.datasetOrig = dataframe.values
         self.datasetOrig = self.datasetOrig.astype('float32')
         self.number_of_columns = number_of_columns
-        self.predictor_column_no = 10
+        self.predictor_column_no = 11
         self.share_for_training = share_for_training
 
     def prepare_for_training(self):

@@ -4,6 +4,7 @@ import seaborn as sns
 import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
+from scipy import stats
 
 df = pd.read_csv("C:/Energy-Consumption-Predictions/final_output.csv")
 df['datetime'] = pd.to_datetime(df['datetime'], errors='coerce')
@@ -79,10 +80,12 @@ def wisker(col):
     return lw, uw
 
 #menjanje outliera minimalnim dopustivim vrednostima
-for i in ['temp', 'feelslike']:
+for i in ['temp', 'feelslike', 'windspeed', 'visibility', 'Load']:
     lw, uw = wisker(df[i])
     df[i] = np.where(df[i] < lw, lw, df[i])
     df[i] = np.where(df[i] > uw, uw, df[i])
+
+
 '''
 #prikaz nalazenja vrednosti sa outlierima
 for i in ['temp', 'feelslike']:
@@ -93,6 +96,7 @@ for i in ['temp', 'feelslike']:
 # Pretvaranje datetime u korisne atribute
 df['datetime'] = pd.to_datetime(df['datetime'])
 df['month'] = df['datetime'].dt.month
+df['day'] = df['datetime'].dt.day
 df['weekday'] = df['datetime'].dt.weekday
 df['hour'] = df['datetime'].dt.hour
 
@@ -107,7 +111,7 @@ df.drop(columns=['date'], inplace=True)
 df['is_weekend'] = df['weekday'].isin([5, 6]).astype(int)
 df.drop(columns=['datetime'], inplace=True)
 df.drop(columns=['uvindex'], inplace=True)
-df.drop(columns=['conditions', 'snowdepth', 'sealevelpressure', 'cloudcover', 'winddir', 'is_weekend', 'humidity', 'dew'], inplace=True)
+df.drop(columns=['conditions', 'snowdepth', 'sealevelpressure', 'cloudcover', 'winddir', 'humidity', 'dew', 'weekday'], inplace=True)
 
 # Definišite prag za minimalni broj nenedostajućih vrednosti
 threshold = int(0.7 * len(df))  # Zadržava kolone koje imaju najmanje 70% nenedostajućih podataka

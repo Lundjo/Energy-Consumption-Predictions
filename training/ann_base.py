@@ -1,29 +1,28 @@
 from re import VERBOSE
 
 
-EPOCH_NUMBER = 30
-BATCH_SIZE_NUMBER = 64
+EPOCH_NUMBER = 5
+BATCH_SIZE_NUMBER = 1
 COST_FUNCTION = 'huber'
 OPTIMIZER = 'nadam'
-KERNEL_INITIALIZER = 'he_normal'
-ACTIVATION_FUNCTION = 'tanh'
+KERNEL_INITIALIZER = 'glorot_uniform'
+ACTIVATION_FUNCTION = 'relu'
 NUMBER_OF_HIDDEN_LAYERS = 4
 NUMBER_OF_NEURONS_IN_FIRST_HIDDEN_LAYER = 128
 NUMBER_OF_NEURONS_IN_OTHER_HIDDEN_LAYERS = 64
-VERBOSE = 2
+VERBOSE = 1
 
 class AnnBase:
-
     def __init__(self):
         self.epoch_number = EPOCH_NUMBER
         self.batch_size_number = BATCH_SIZE_NUMBER
         self.cost_function = COST_FUNCTION
         self.optimizer = OPTIMIZER
         self.kernel_initializer = KERNEL_INITIALIZER
-        self.activation_function = ACTIVATION_FUNCTION        
+        self.activation_function = ACTIVATION_FUNCTION
         self.number_of_hidden_layers = NUMBER_OF_HIDDEN_LAYERS
-        self.number_of_neurons_in_first_hidden_layer = 20
-        self.number_of_neurons_in_other_hidden_layers = 8
+        self.number_of_neurons_in_first_hidden_layer = NUMBER_OF_NEURONS_IN_FIRST_HIDDEN_LAYER
+        self.number_of_neurons_in_other_hidden_layers = NUMBER_OF_NEURONS_IN_OTHER_HIDDEN_LAYERS
         self.verbose = VERBOSE
 
     @property

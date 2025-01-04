@@ -5,8 +5,8 @@ from custom_plotting import CustomPloting
 from custom_preparer import CustomPreparer
 from scorer import Scorer
 
-NUMBER_OF_COLUMNS = 11
-SHARE_FOR_TRAINING = 0.85
+NUMBER_OF_COLUMNS = 12
+SHARE_FOR_TRAINING = 0.9
 
 # load the dataset
 dataframe = pandas.read_csv('C:/Energy-Consumption-Predictions/new_output.csv', engine='python', sep=',')
