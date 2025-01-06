@@ -3,7 +3,7 @@ from re import VERBOSE
 
 EPOCH_NUMBER = 5
 BATCH_SIZE_NUMBER = 1
-COST_FUNCTION = 'huber'
+COST_FUNCTION = 'mean_absolute_percentage_error'
 OPTIMIZER = 'nadam'
 KERNEL_INITIALIZER = 'glorot_uniform'
 ACTIVATION_FUNCTION = 'relu'

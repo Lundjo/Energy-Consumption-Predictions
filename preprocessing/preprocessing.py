@@ -104,14 +104,70 @@ df['date'] = df['datetime'].dt.date  # Ekstrahovanje samo datuma
 daily_avg_temp = df.groupby('date')['temp'].mean()  # Računanje prosečne temperature po datumu
 df['prev_day_avg_temp'] = df['date'].map(daily_avg_temp.shift(1))  # Dodavanje prosečne temperature prethodnog dana
 df['prev_day_avg_temp'] = df['prev_day_avg_temp'].fillna(df['temp'])
+# Prosečna vrednost 'Load' iz prethodnih 7 dana
+df['prev_week_avg_load'] = df['date'].map(df.groupby('date')['Load'].transform(lambda x: x.shift(7).mean()))
+
+# Maksimalna vrednost 'Load' iz prethodnih 7 dana
+df['prev_week_max_load'] = df['date'].map(df.groupby('date')['Load'].transform(lambda x: x.shift(7).max()))
+
+# Minimalna vrednost 'Load' iz prethodnih 7 dana
+df['prev_week_min_load'] = df['date'].map(df.groupby('date')['Load'].transform(lambda x: x.shift(7).min()))
+
+# Razlika između trenutnog i prosečnog opterećenja prethodnog dana
+df['daily_load_difference'] = df['Load'] - df['prev_day_avg_temp']
+
 # Uklanjanje privremene kolone 'date' (ako nije potrebna)
 df.drop(columns=['date'], inplace=True)
+
+def get_part_of_day(hour):
+    if 5 <= hour < 12:
+        return 1
+    elif 12 <= hour < 17:
+        return 2
+    elif 17 <= hour < 21:
+        return 3
+    else:
+        return 4
+
+df['part_of_day'] = df['hour'].apply(get_part_of_day)
+
+def get_season(month):
+    if month in [12, 1, 2]:
+        return 1
+    elif month in [3, 4, 5]:
+        return 2
+    elif month in [6, 7, 8]:
+        return 3
+    else:
+        return 4
+
+df['season'] = df['month'].apply(get_season)
+
+df['snow'] = df['snow'].apply(lambda x: 1 if x > 0 else 0)
 
 # Dodavanje vikenda
 df['is_weekend'] = df['weekday'].isin([5, 6]).astype(int)
 df.drop(columns=['datetime'], inplace=True)
 df.drop(columns=['uvindex'], inplace=True)
 df.drop(columns=['conditions', 'snowdepth', 'sealevelpressure', 'cloudcover', 'winddir', 'humidity', 'dew', 'weekday'], inplace=True)
+
+df['lag_1'] = df['Load'].shift(1)
+df['lag_24'] = df['Load'].shift(24)
+df['lag_168'] = df['Load'].shift(168)
+df['diff_hour'] = df['Load'] - df['Load'].shift(1)
+df['diff_day'] = df['Load'] - df['Load'].shift(24)
+df['lag_week'] = df['Load'].shift(7 * 24)  # Pre nedelju dana
+df['lag_year'] = df['Load'].shift(365 * 24)  # Pre godinu dana
+df['hour_sin'] = np.sin(2 * np.pi * df['hour'] / 24)
+df['hour_cos'] = np.cos(2 * np.pi * df['hour'] / 24)
+
+df['lag_1'] = df['lag_1'].fillna(df['Load'])
+df['lag_24'] = df['lag_24'].fillna(df['Load'])
+df['lag_168'] = df['lag_168'].fillna(df['Load'])
+df['diff_hour'] = df['diff_hour'].fillna(df['Load'])
+df['diff_day'] = df['diff_day'].fillna(df['Load'])
+df['lag_week'] = df['lag_week'].fillna(df['Load'])
+df['lag_year'] = df['lag_year'].fillna(df['Load'])
 
 # Definišite prag za minimalni broj nenedostajućih vrednosti
 threshold = int(0.7 * len(df))  # Zadržava kolone koje imaju najmanje 70% nenedostajućih podataka
