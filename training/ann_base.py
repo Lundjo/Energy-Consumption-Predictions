@@ -1,15 +1,15 @@
 from re import VERBOSE
 
 
-EPOCH_NUMBER = 5
+EPOCH_NUMBER = 100
 BATCH_SIZE_NUMBER = 1
-COST_FUNCTION = 'mean_absolute_percentage_error'
+COST_FUNCTION = 'mape'
 OPTIMIZER = 'nadam'
-KERNEL_INITIALIZER = 'glorot_uniform'
-ACTIVATION_FUNCTION = 'relu'
-NUMBER_OF_HIDDEN_LAYERS = 4
-NUMBER_OF_NEURONS_IN_FIRST_HIDDEN_LAYER = 128
-NUMBER_OF_NEURONS_IN_OTHER_HIDDEN_LAYERS = 64
+KERNEL_INITIALIZER = 'he_normal'
+ACTIVATION_FUNCTION = 'leaky_relu'
+NUMBER_OF_HIDDEN_LAYERS = 3
+NUMBER_OF_NEURONS_IN_FIRST_HIDDEN_LAYER = 17
+NUMBER_OF_NEURONS_IN_OTHER_HIDDEN_LAYERS = 10
 VERBOSE = 1
 
 class AnnBase:
@@ -108,6 +108,14 @@ class AnnBase:
     @activation_function.setter
     def activation_function(self, value):
         self._activation_function = value
+
+    @property
+    def output_activation_function(self):
+        return self._output_activation_function
+
+    @output_activation_function.setter
+    def output_activation_function(self, value):
+        self._output_activation_function = value
 
     @property
     def number_of_hidden_layers(self):
