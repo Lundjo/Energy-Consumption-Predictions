@@ -13,9 +13,9 @@ def preprocessing(df, training_data):
     df['month_sin'] = np.sin(2 * np.pi * df['month'] / 12)
     df['month_cos'] = np.cos(2 * np.pi * df['month'] / 12)
 
-    df['date'] = df['datetime'].dt.date  # Ekstrahovanje samo datuma
-    daily_avg_temp = df.groupby('date')['temp'].mean()  # Računanje prosečne temperature po datumu
-    df['prev_day_avg_temp'] = df['date'].map(daily_avg_temp.shift(1))  # Dodavanje prosečne temperature prethodnog dana
+    df['date'] = df['datetime'].dt.date
+    daily_avg_temp = df.groupby('date')['temp'].mean()
+    df['prev_day_avg_temp'] = df['date'].map(daily_avg_temp.shift(1))
     df['prev_day_avg_temp'] = df['prev_day_avg_temp'].fillna(df['temp'])
 
     def get_season(month):
@@ -29,7 +29,6 @@ def preprocessing(df, training_data):
             return 4
 
     df['season'] = df['month'].apply(get_season)
-    #df['is_weekend'] = df['weekday'].isin([5, 6]).astype(int)
     df['hour_sin'] = np.sin(2 * np.pi * df['hour'] / 24)
     df['hour_cos'] = np.cos(2 * np.pi * df['hour'] / 24)
     df['month_sin'] = np.sin(2 * np.pi * df['month'] / 12)
