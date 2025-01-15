@@ -16,17 +16,9 @@ df = df.drop_duplicates(subset=['datetime'], keep=False)
 
 #popunjavanje nedostajucih vrednosti
 print(df.isnull().sum())
-columns_to_fill = ["feelslike", "dew", "humidity", "precip", "windspeed", "winddir", "sealevelpressure", "cloudcover", "visibility", "Load"]
+columns_to_check = ["temp", "feelslike", "windspeed", "visibility", "Load"]
 
-for col in columns_to_fill:
-    if col in df.columns:  # Provera da li kolona postoji
-        df[col] = pd.to_numeric(df[col], errors='coerce')  # Konverzija u numerički format
-        if df[col].notna().any():  # Provera da li postoje nenull vrednosti
-            df[col] = df[col].interpolate(method='linear', limit_direction='both', axis=0).fillna(method='ffill')  # Interpolacija na osnovu susednih vrednosti
-        else:
-            print(f"Kolona '{col}' sadrži samo NaN vrednosti.")
-    else:
-        print(f"Kolona '{col}' ne postoji u DataFrame-u.")
+df = df.dropna(subset=columns_to_check)
 print(df.isnull().sum())
 
 #trazenje outliera
@@ -38,7 +30,7 @@ def wisker(col):
     return lw, uw
 
 #menjanje outliera minimalnim dopustivim vrednostima
-for i in ['temp', 'feelslike', 'precip', 'snow', 'windspeed', 'visibility', 'Load']:
+for i in ['temp', 'feelslike', 'precip', 'snow', 'windspeed', 'visibility']:
     lw, uw = wisker(df[i])  # Izračunavanje granica
 
     # Zamena outliera sa NaN
@@ -69,7 +61,7 @@ df['prev_week_max_load'] = df['date'].map(df.groupby('date')['Load'].transform(l
 df['prev_week_min_load'] = df['date'].map(df.groupby('date')['Load'].transform(lambda x: x.shift(7).min()))
 
 # Razlika između trenutnog i prosečnog opterećenja prethodnog dana
-df['daily_load_difference'] = df['Load'] - df['prev_day_avg_temp']
+#df['daily_load_difference'] = df['Load'] - df['prev_day_avg_temp']
 
 # Uklanjanje privremene kolone 'date' (ako nije potrebna)
 df.drop(columns=['date'], inplace=True)
@@ -99,9 +91,9 @@ df['snow'] = df['snow'].apply(lambda x: 1 if x > 0 else 0)
 # Dodavanje vikenda
 df['is_weekend'] = df['weekday'].isin([5, 6]).astype(int)
 
-df['lag_1'] = df['Load'].shift(1)
-df['lag_24'] = df['Load'].shift(24)
-df['lag_168'] = df['Load'].shift(168)
+#df['lag_1'] = df['Load'].shift(1)
+#df['lag_24'] = df['Load'].shift(24)
+#['lag_168'] = df['Load'].shift(168)
 '''df['diff_hour'] = df['Load'] - df['Load'].shift(1)
 df['diff_day'] = df['Load'] - df['Load'].shift(24)
 df['lag_week'] = df['Load'].shift(7 * 24)  # Pre nedelju dana
@@ -115,16 +107,32 @@ df['day_of_week_cos'] = np.cos(2 * np.pi * df['weekday'] / 7)
 #df['season_sin'] = np.sin(2 * np.pi * df['season'] / 4)
 #df['season_cos'] = np.cos(2 * np.pi * df['season'] / 4)
 
-df['lag_1'] = df['lag_1'].fillna(df['Load'])
-df['lag_24'] = df['lag_24'].fillna(df['Load'])
-df['lag_168'] = df['lag_168'].fillna(df['Load'])
+#df['lag_1'] = df['lag_1'].fillna(df['Load'])
+#df['lag_24'] = df['lag_24'].fillna(df['Load'])
+#df['lag_168'] = df['lag_168'].fillna(df['Load'])
 '''df['diff_hour'] = df['diff_hour'].fillna(df['Load'])
 df['diff_day'] = df['diff_day'].fillna(df['Load'])
 df['lag_week'] = df['lag_week'].fillna(df['Load'])
 df['lag_year'] = df['lag_year'].fillna(df['Load'])'''
 
-df.drop(columns=['datetime', 'uvindex', 'conditions', 'snowdepth', 'sealevelpressure', 'cloudcover', 'winddir', 'humidity', 'dew', 'hour', 'month', 'precip',
-                 'snow', 'year', 'weekday', 'day'], inplace=True)
+df = df.groupby(['weekday', 'hour', 'month'], as_index=False).agg({
+            'temp': 'mean',
+            'windspeed': 'mean',
+            'prev_day_avg_temp': 'mean',
+            'season': 'mean',
+            'hour_sin': 'mean',
+            'hour_cos': 'mean',
+            'month_sin': 'mean',
+            'month_cos': 'mean',
+            'day_of_week_sin': 'mean',
+            'day_of_week_cos': 'mean',
+            'Load': 'mean'
+        }).round(4)
+
+#df.drop(columns=['datetime', 'uvindex', 'conditions', 'snowdepth', 'sealevelpressure', 'cloudcover', 'winddir', 'humidity', 'dew', 'hour', 'month', 'precip',
+ #                'snow', 'year', 'weekday', 'day', 'is_weekend'], inplace=True)
+
+df.drop(columns=['month', 'hour', 'weekday'], inplace=True)
 
 # Definišite prag za minimalni broj nenedostajućih vrednosti
 threshold = int(0.7 * len(df))  # Zadržava kolone koje imaju najmanje 70% nenedostajućih podataka
@@ -132,6 +140,7 @@ threshold = int(0.7 * len(df))  # Zadržava kolone koje imaju najmanje 70% nened
 # Uklonite kolone koje imaju previše nedostajućih podataka
 df = df.dropna(axis=1, thresh=threshold)
 
+'''
 dummy = pd.get_dummies(data=df, columns=['name'], drop_first=True)
 load_column = dummy.pop('Load')  # Izvlači kolonu 'Load' iz DataFrame-a
 dummy['Load'] = load_column      # Dodaje kolonu 'Load' kao poslednju
@@ -139,6 +148,6 @@ dummy = np.round(dummy, 3)
 
 
 print(dummy.head().to_string())
+'''
 
-
-dummy.to_csv("C:/Energy-Consumption-Predictions/new_output.csv", index=False)
+df.to_csv("C:/Energy-Consumption-Predictions/new_output.csv", index=False)

@@ -5,12 +5,12 @@ from custom_plotting import CustomPloting
 from custom_preparer import CustomPreparer
 from scorer import Scorer
 
-NUMBER_OF_COLUMNS = 10
+NUMBER_OF_COLUMNS = 11
 SHARE_FOR_TRAINING = 0.85
 
 # load the dataset
 dataframe = pandas.read_csv('C:/Energy-Consumption-Predictions/new_output.csv', engine='python', sep=',')
-#dataframe = dataframe.sample(frac=0.6, random_state=42)
+#dataframe = dataframe.sample(frac=0.8, random_state=42)
 
 # prepare data
 preparer = CustomPreparer(dataframe, NUMBER_OF_COLUMNS, SHARE_FOR_TRAINING);
@@ -38,4 +38,4 @@ print('Test Score: %.2f MAPE' % (testScore))
 #custom_plotting = CustomPloting()
 #custom_plotting.show_plots(testPredict, testY)
 
-ann_regression.model.save('model.keras')
+ann_regression.model.save('C:/Energy-Consumption-Predictions/model.keras')

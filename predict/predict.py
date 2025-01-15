@@ -6,17 +6,45 @@ from sklearn.preprocessing import MinMaxScaler
 def preprocessing(df, training_data):
     df['datetime'] = pd.to_datetime(df['datetime'])
     df['month'] = df['datetime'].dt.month
-    df['day_of_week'] = df['datetime'].dt.weekday
+    df['weekday'] = df['datetime'].dt.weekday
     df['hour'] = df['datetime'].dt.hour
     df['hour_sin'] = np.sin(2 * np.pi * df['hour'] / 24)
     df['hour_cos'] = np.cos(2 * np.pi * df['hour'] / 24)
     df['month_sin'] = np.sin(2 * np.pi * df['month'] / 12)
     df['month_cos'] = np.cos(2 * np.pi * df['month'] / 12)
+
+    df['date'] = df['datetime'].dt.date  # Ekstrahovanje samo datuma
+    daily_avg_temp = df.groupby('date')['temp'].mean()  # Računanje prosečne temperature po datumu
+    df['prev_day_avg_temp'] = df['date'].map(daily_avg_temp.shift(1))  # Dodavanje prosečne temperature prethodnog dana
+    df['prev_day_avg_temp'] = df['prev_day_avg_temp'].fillna(df['temp'])
+
+    def get_season(month):
+        if month in [12, 1, 2]:
+            return 1
+        elif month in [3, 4, 5]:
+            return 2
+        elif month in [6, 7, 8]:
+            return 3
+        else:
+            return 4
+
+    df['season'] = df['month'].apply(get_season)
+    #df['is_weekend'] = df['weekday'].isin([5, 6]).astype(int)
+    df['hour_sin'] = np.sin(2 * np.pi * df['hour'] / 24)
+    df['hour_cos'] = np.cos(2 * np.pi * df['hour'] / 24)
+    df['month_sin'] = np.sin(2 * np.pi * df['month'] / 12)
+    df['month_cos'] = np.cos(2 * np.pi * df['month'] / 12)
+    df['day_of_week_sin'] = np.sin(2 * np.pi * df['weekday'] / 7)
+    df['day_of_week_cos'] = np.cos(2 * np.pi * df['weekday'] / 7)
+
+    df['load'] = training_data['Load'].median()
+
     df.drop(columns=['datetime', 'uvindex', 'conditions', 'snowdepth', 'sealevelpressure', 'winddir', 'solarenergy', 'preciptype', 'severerisk',
-                     'humidity', 'dew', 'hour', 'precip', 'snow', 'name', 'feelslike', 'precipprob', 'windgust', 'solarradiation', 'visibility'], inplace=True)
+                     'humidity', 'dew', 'hour', 'precip', 'snow', 'name', 'precipprob', 'windgust', 'solarradiation', 'weekday', 'month', 'cloudcover'], inplace=True)
     df = df[
-        ['day_of_week', 'month', 'temp', 'windspeed', 'cloudcover', 'hour_sin', 'hour_cos', 'month_sin', 'month_cos']]
-    df['load'] = training_data['load'].median()
+        ['temp', 'windspeed', 'prev_day_avg_temp', 'season',
+         'hour_sin', 'hour_cos', 'month_sin', 'month_cos', 'day_of_week_sin', 'day_of_week_cos', 'load']]
+
     return df
 
 
@@ -40,7 +68,7 @@ new_data_values = new_dataframe.values.astype('float32')
 new_data_scaled = scaler.transform(new_data_values)
 
 # Priprema ulaznih podataka (X) za predikciju
-look_back = 10  # Pretpostavlja se da imate 9 kolona za ulaz
+look_back = 11
 X_new = []
 for i in range(len(new_data_scaled)):
     a = new_data_scaled[i, 0:look_back - 1]
