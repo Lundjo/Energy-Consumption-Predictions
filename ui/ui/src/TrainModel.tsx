@@ -9,6 +9,49 @@ export default function TrainModel() {
   const [optimizer, setOptimizer] = useState("nadam");
   const [kernelInitializer, setKernelInitializer] = useState("he_normal");
   const [activationFunction, setActivationFunction] = useState("leaky_relu");
+  const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
+  const [selectedFolder, setSelectedFolder] = useState<FileList | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setSelectedFiles(e.target.files);
+    }
+  };
+
+  const handleFolderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setSelectedFolder(e.target.files);
+    }
+  };
+
+  const handleUpload = () => {
+    const formData = new FormData();
+
+    if (selectedFiles) {
+      Array.from(selectedFiles).forEach((file) => {
+        formData.append("files", file);
+      });
+    }
+
+    if (selectedFolder) {
+      Array.from(selectedFolder).forEach((file) => {
+        formData.append("folder", file);
+      });
+    }
+
+    // Call backend API to upload files/folder
+    fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Success:", data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
 
   const handleTrain = () => {
     // Call backend API to start training with selected hyperparameters
@@ -18,6 +61,40 @@ export default function TrainModel() {
     <div className="flex justify-center items-center min-h-screen p-6 bg-gray-900 text-white">
       <div className="w-full max-w-4xl bg-gray-800 shadow-lg rounded-lg p-8">
         <h1 className="text-3xl font-bold text-center mb-8">Train Your Model</h1>
+
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Upload Data</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <label className="block">
+              <span className="font-medium">Upload CSV Files:</span>
+              <input
+                type="file"
+                accept=".csv"
+                multiple
+                onChange={handleFileChange}
+                className="w-full p-4 border border-gray-600 bg-gray-700 rounded-lg text-white"
+              />
+            </label>
+
+            <label className="block">
+              <span className="font-medium">Upload Folder:</span>
+              <input
+                type="file"
+                {...({ webkitdirectory: "true" } as React.InputHTMLAttributes<HTMLInputElement>)}
+                onChange={handleFolderChange}
+                className="w-full p-4 border border-gray-600 bg-gray-700 rounded-lg text-white"
+              />
+            </label>
+
+            <button
+              onClick={handleUpload}
+              className="w-full bg-green-600 text-white p-4 rounded-lg transition duration-300 hover:bg-green-500 col-span-2"
+            >
+              Upload Data
+            </button>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <label className="block">
             <span className="font-medium">Number of Layers:</span>
