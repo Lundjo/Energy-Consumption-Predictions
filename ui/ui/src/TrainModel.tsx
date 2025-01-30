@@ -1,10 +1,10 @@
 import { useState } from "react";
 
 export default function TrainModel() {
-  const [layers, setLayers] = useState(null);
-  const [neuronsFirstLayer, setNeuronsFirstLayer] = useState(null);
-  const [neuronsOtherLayers, setNeuronsOtherLayers] = useState(null);
-  const [epochs, setEpochs] = useState(null);
+  const [layers, setLayers] = useState<number | undefined>(undefined);
+  const [neuronsFirstLayer, setNeuronsFirstLayer] = useState<number | undefined>(undefined);
+  const [neuronsOtherLayers, setNeuronsOtherLayers] = useState<number | undefined>(undefined);
+  const [epochs, setEpochs] = useState<number | undefined>(undefined);
   const [costFunction, setCostFunction] = useState("mape");
   const [optimizer, setOptimizer] = useState("nadam");
   const [kernelInitializer, setKernelInitializer] = useState("he_normal");
@@ -24,7 +24,7 @@ export default function TrainModel() {
             <input
               type="number"
               value={layers}
-              onChange={(e) => setLayers(Number(e.target.value))}
+              onChange={(e) => setLayers(e.target.value ? Number(e.target.value) : undefined)}
               min={0}
               className="w-full p-4 border border-gray-600 bg-gray-700 rounded-lg text-white"
             />
@@ -35,7 +35,7 @@ export default function TrainModel() {
             <input
               type="number"
               value={neuronsFirstLayer}
-              onChange={(e) => setNeuronsFirstLayer(Number(e.target.value))}
+              onChange={(e) => setNeuronsFirstLayer(e.target.value ? Number(e.target.value) : undefined)}
               min={0}
               className="w-full p-4 border border-gray-600 bg-gray-700 rounded-lg text-white"
             />
@@ -46,7 +46,7 @@ export default function TrainModel() {
             <input
               type="number"
               value={neuronsOtherLayers}
-              onChange={(e) => setNeuronsOtherLayers(Number(e.target.value))}
+              onChange={(e) => setNeuronsOtherLayers(e.target.value ? Number(e.target.value) : undefined)}
               min={0}
               className="w-full p-4 border border-gray-600 bg-gray-700 rounded-lg text-white"
             />
@@ -57,7 +57,7 @@ export default function TrainModel() {
             <input
               type="number"
               value={epochs}
-              onChange={(e) => setEpochs(Number(e.target.value))}
+              onChange={(e) => setEpochs(e.target.value ? Number(e.target.value) : undefined)}
               min={0}
               className="w-full p-4 border border-gray-600 bg-gray-700 rounded-lg text-white"
             />
