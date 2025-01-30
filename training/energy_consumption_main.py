@@ -9,7 +9,7 @@ NUMBER_OF_COLUMNS = 11
 SHARE_FOR_TRAINING = 0.85
 
 # load the dataset
-dataframe = pandas.read_csv('C:/Energy-Consumption-Predictions/new_output.csv', engine='python', sep=',')
+dataframe = pandas.read_csv('D:/Energy-Consumption-Predictions/new_output.csv', engine='python', sep=',')
 
 # prepare data
 preparer = CustomPreparer(dataframe, NUMBER_OF_COLUMNS, SHARE_FOR_TRAINING);
@@ -31,4 +31,4 @@ trainScore, testScore = scorer.get_score(trainY, trainPredict, testY, testPredic
 print('Train Score: %.2f MAPE' % (trainScore))
 print('Test Score: %.2f MAPE' % (testScore))
 
-ann_regression.model.save('C:/Energy-Consumption-Predictions/model.keras')
+ann_regression.model.save('C:/model.keras')
