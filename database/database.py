@@ -1,4 +1,5 @@
 import sqlite3
+import pandas as pd
 
 DB_PATH = "D:/Energy-Consumption-Predictions/database/my_database.db"
 
@@ -74,13 +75,12 @@ def insert_data(df, table):
 def get_data(table):
     """ Vraća sve podatke iz tabele weather_data """
     conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
 
-    cursor.execute(f'SELECT * FROM {table}')
-    rows = cursor.fetchall()
+    query = f'SELECT * FROM {table}'
+    df = pd.read_sql_query(query, conn)
 
     conn.close()
-    return rows
+    return df
 
 
 def clear_database():

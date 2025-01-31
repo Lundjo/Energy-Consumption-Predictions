@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from tensorflow.keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
+import preprocessing.preprocessing
 
 def preprocessing(df, training_data):
     df['datetime'] = pd.to_datetime(df['datetime'])
@@ -47,55 +48,50 @@ def preprocessing(df, training_data):
     return df
 
 
-# Učitavanje sačuvanog modela
-model = load_model('C:/Energy-Consumption-Predictions/model.keras')
+def test(input):
+    # Učitavanje sačuvanog modela
+    model = load_model('D:/Energy-Consumption-Predictions/model.keras')
 
-# Učitavanje novih podataka
-new_data_path = 'C:/Energy-Consumption-Predictions/new_weather.csv'
-training_data = pd.read_csv('C:/Energy-Consumption-Predictions/new_output.csv')
-new_dataframe = pd.read_csv(new_data_path, engine='python', sep=',')
-new_dataframe = preprocessing(new_dataframe, training_data)
-if new_dataframe.isnull().any().any():
-    print("Učitani podaci sadrže NaN vrednosti")
-    print(new_dataframe.isnull().sum())
-# Priprema skalera (isti kao tokom treniranja)
-scaler = MinMaxScaler(feature_range=(0, 1))
-scaler.fit_transform(training_data)
+    # Učitavanje novih podataka
+    training_data = preprocessing.preprocessing.dataPreprocesing()
+    new_dataframe = preprocessing(input, training_data)
 
-# Normalizacija podataka
-new_data_values = new_dataframe.values.astype('float32')
-new_data_scaled = scaler.transform(new_data_values)
+    if new_dataframe.isnull().any().any():
+        print("Učitani podaci sadrže NaN vrednosti")
+        print(new_dataframe.isnull().sum())
+    # Priprema skalera (isti kao tokom treniranja)
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    scaler.fit_transform(training_data)
 
-# Priprema ulaznih podataka (X) za predikciju
-look_back = 11
-X_new = []
-for i in range(len(new_data_scaled)):
-    a = new_data_scaled[i, 0:look_back - 1]
-    X_new.append(a)
-X_new = np.array(X_new)
-X_new = np.reshape(X_new, (X_new.shape[0], 1, X_new.shape[1]))
+    # Normalizacija podataka
+    new_data_values = new_dataframe.values.astype('float32')
+    new_data_scaled = scaler.transform(new_data_values)
 
-# Predikcija
-predictions_scaled = model.predict(X_new)
+    # Priprema ulaznih podataka (X) za predikciju
+    look_back = 11
+    X_new = []
+    for i in range(len(new_data_scaled)):
+        a = new_data_scaled[i, 0:look_back - 1]
+        X_new.append(a)
+    X_new = np.array(X_new)
+    X_new = np.reshape(X_new, (X_new.shape[0], 1, X_new.shape[1]))
 
-X_new = np.reshape(X_new, (X_new.shape[0], X_new.shape[2]))
+    # Predikcija
+    predictions_scaled = model.predict(X_new)
 
-# Promena dimenzije predikcija sa (n_samples, 1) u (n_samples, )
-predictions_scaled = np.reshape(predictions_scaled, (predictions_scaled.shape[0], 1))
+    X_new = np.reshape(X_new, (X_new.shape[0], X_new.shape[2]))
 
-# Spajanje predikcija sa podacima
-new_data_scaled = np.concatenate((X_new, predictions_scaled), axis=1)
+    # Promena dimenzije predikcija sa (n_samples, 1) u (n_samples, )
+    predictions_scaled = np.reshape(predictions_scaled, (predictions_scaled.shape[0], 1))
 
-# Inverzna transformacija podataka
-data_original = scaler.inverse_transform(new_data_scaled)
+    # Spajanje predikcija sa podacima
+    new_data_scaled = np.concatenate((X_new, predictions_scaled), axis=1)
 
-predictions = data_original[:, -1]
+    # Inverzna transformacija podataka
+    data_original = scaler.inverse_transform(new_data_scaled)
 
-# Ispis rezultata
-print("Predikcije na novim podacima:")
-print(predictions)
+    predictions = data_original[:, -1]
 
-new_dataframe = pd.read_csv(new_data_path, engine='python', sep=',')
-df = new_dataframe[['datetime']].copy()
-df['predicted_load'] = predictions
-df.to_csv('predicted_load.csv', index=False)
+    # Ispis rezultata
+    print("Predikcije na novim podacima:")
+    print(predictions)
