@@ -1,10 +1,10 @@
 import sqlite3
 
-DB_NAME = "my_database.db"
+DB_PATH = "D:/Energy-Consumption-Predictions/database/my_database.db"
 
 def createDB():
     # Povezivanje sa bazom podataka (ako baza ne postoji, biće kreirana)
-    conn = sqlite3.connect(DB_NAME)
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     # Kreiranje prve tabele za vremenske podatke
@@ -52,14 +52,19 @@ def createDB():
     conn.commit()
     conn.close()
 
-def insert_data(data, table):
-    conn = sqlite3.connect('my_database.db')
+def insert_data(df, table):
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    column_names = list(data[0].keys())
+    # Uzimamo nazive kolona iz DataFrame-a
+    column_names = df.columns.tolist()
+
+    # Priprema SQL query-a
     placeholders = ", ".join(["?" for _ in column_names])
     sql_query = f'INSERT INTO {table} ({", ".join(column_names)}) VALUES ({placeholders})'
-    values = [tuple(row[col] for col in column_names) for row in data]  # Priprema podataka za ubacivanje
+
+    # Uzimanje vrednosti iz DataFrame-a kao liste torki
+    values = df.itertuples(index=False, name=None)
 
     cursor.executemany(sql_query, values)
 
@@ -68,7 +73,7 @@ def insert_data(data, table):
 
 def get_data(table):
     """ Vraća sve podatke iz tabele weather_data """
-    conn = sqlite3.connect(DB_NAME)
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     cursor.execute(f'SELECT * FROM {table}')
@@ -80,7 +85,7 @@ def get_data(table):
 
 def clear_database():
     """ Briše sve podatke iz svih tabela u bazi """
-    conn = sqlite3.connect(DB_NAME)
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     # Dohvati sve tabele u bazi

@@ -1,9 +1,12 @@
 import pandas as pd
 import os
+import database.database
+
+database.database.createDB()
 
 # Naziv foldera sa CSV fajlovima za df i dn
-df_folder = "NYS Weather Data"
-dn_folder = "NYS Load  Data"
+df_folder = "D:/Energy-Consumption-Predictions/Training Data/NYS Weather Data"
+dn_folder = "D:/Energy-Consumption-Predictions/Training Data/NYS Load  Data"
 
 # Kreirajte prazan DataFrame za spajanje svih df fajlova
 df_list = []
@@ -22,6 +25,7 @@ df = pd.concat(df_list, ignore_index=True)
 
 # Pretvorite datetime kolonu
 df['datetime'] = pd.to_datetime(df['datetime'], errors='coerce')
+df['datetime'] = df['datetime'].astype(str)
 
 for root, dirs, files in os.walk(dn_folder):
     for file_name in files:
@@ -32,11 +36,8 @@ for root, dirs, files in os.walk(dn_folder):
 
 dn = pd.concat(dn_list, ignore_index=True)
 dn['Time Stamp'] = pd.to_datetime(dn['Time Stamp'], errors='coerce')
+dn['Time Stamp'] = dn['Time Stamp'].astype(str)
+dn.columns = [col.lower().replace(" ", "_") for col in dn.columns]
 
-dn_nyc = dn[dn['Name'] == "N.Y.C."]
-df = df.merge(dn_nyc[['Time Stamp', 'Load']], left_on='datetime', right_on='Time Stamp', how='left')
-df = df.drop(columns=['Time Stamp'])
-
-# Sačuvajte konačni rezultat
-df.to_csv("final_output.csv", index=False)
-print("Svi fajlovi su spojeni (uključujući poddirektorijume) i rezultat je sačuvan u 'final_output.csv'.")
+database.database.insert_data(df, 'weather_data')
+database.database.insert_data(dn, 'load_data')
