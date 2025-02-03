@@ -9,14 +9,7 @@ export default function TrainModel() {
   const [optimizer, setOptimizer] = useState("nadam");
   const [kernelInitializer, setKernelInitializer] = useState("he_normal");
   const [activationFunction, setActivationFunction] = useState("leaky_relu");
-  const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [selectedFolder, setSelectedFolder] = useState<FileList | null>(null);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setSelectedFiles(e.target.files);
-    }
-  };
 
   const handleFolderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -27,12 +20,6 @@ export default function TrainModel() {
   const handleUpload = () => {
     const formData = new FormData();
 
-    if (selectedFiles) {
-      Array.from(selectedFiles).forEach((file) => {
-        formData.append("files", file);
-      });
-    }
-
     if (selectedFolder) {
       Array.from(selectedFolder).forEach((file) => {
         formData.append("folder", file);
@@ -40,7 +27,7 @@ export default function TrainModel() {
     }
 
     // Call backend API to upload files/folder
-    fetch("/api/upload", {
+    fetch("http://localhost:5000/api/upload", {
       method: "POST",
       body: formData,
     })
@@ -65,18 +52,8 @@ export default function TrainModel() {
         <div className="mb-8">
           <h2 className="text-xl font-semibold mb-4">Upload Data</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <label className="block">
-              <span className="font-medium">Upload CSV Files:</span>
-              <input
-                type="file"
-                accept=".csv"
-                multiple
-                onChange={handleFileChange}
-                className="w-full p-4 border border-gray-600 bg-gray-700 rounded-lg text-white"
-              />
-            </label>
-
-            <label className="block">
+            
+            <label className="block col-span-2">
               <span className="font-medium">Upload Folder:</span>
               <input
                 type="file"
