@@ -1,5 +1,4 @@
 import time
-import pandas
 from ann_regression import AnnRegression
 from custom_preparer import CustomPreparer
 from scorer import Scorer
@@ -8,7 +7,7 @@ import preprocessing.preprocessing
 NUMBER_OF_COLUMNS = 11
 SHARE_FOR_TRAINING = 0.85
 
-def mainTraining():
+def mainTraining(neurons, neurons_first_layer, neurons_other_layers, epochs):
     # load the dataset
     dataframe = preprocessing.preprocessing.dataPreprocesing()
 

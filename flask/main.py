@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pandas
 from database.database import insert_data as insert
+import training.energy_consumption_main as training
 
 app = Flask(__name__)
 CORS(app)  # Omogućava CORS za komunikaciju između frontenda i backenda
@@ -34,6 +35,21 @@ def upload_files():
     return jsonify({
         "message": "Fajlovi su uspešno uploadovani",
         "saved_files": saved_files
+    }), 200
+
+@app.route('/api/train', methods=['POST'])
+def train_model():
+    data = request.get_json()
+
+    layers = data.get('layers')
+    neurons_first_layer = data.get('neuronsFirstLayer')
+    neurons_other_layers = data.get('neuronsOtherLayers')
+    epochs = data.get('epochs')
+
+    training.mainTraining(layers, neurons_first_layer, neurons_other_layers, epochs)
+
+    return jsonify({
+        "message": "Model training started"
     }), 200
 
 if __name__ == '__main__':
