@@ -15,8 +15,10 @@ def upload_files():
         return jsonify({"error": "Nijedan fajl nije pronađen"}), 400
 
     sent = False
-
+    dl = pd.DataFrame()
+    dw = pd.DataFrame()
     saved_files = []
+
     for file in files:
         if file.filename.endswith('.csv'):
             df = pandas.read_csv(file, engine='python', sep=',')
@@ -24,11 +26,16 @@ def upload_files():
             if(df.shape[1] == 5):
                 df['time_stamp'] = pd.to_datetime(df['time_stamp'])
                 df_filtered = df[df['time_stamp'].dt.minute == 0].astype(str)
-                insert(df_filtered, 'load_data')
+                dl = pd.concat([dl, df_filtered], ignore_index=True)
             else:
-                insert(df, 'weather_data')
+                dw = pd.concat([dw, df], ignore_index=True)
 
-            sent = True
+    if not dl.empty:
+        insert(dl, 'load_data')
+        sent = True
+    if not dw.empty:
+        insert(dw, 'weather_data')
+        sent = True
     if not sent:
         return jsonify({"error": "Samo CSV fajlovi su dozvoljeni"}), 400
 
