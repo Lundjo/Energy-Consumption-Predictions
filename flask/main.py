@@ -7,6 +7,7 @@ import training.energy_consumption_main as training
 
 app = Flask(__name__)
 CORS(app)  # Omogućava CORS za komunikaciju između frontenda i backenda
+app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 1024
 
 @app.route('/api/upload', methods=['POST'])
 def upload_files():

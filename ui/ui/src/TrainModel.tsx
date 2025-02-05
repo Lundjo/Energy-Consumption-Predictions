@@ -6,6 +6,17 @@ export default function TrainModel() {
   const [neuronsOtherLayers, setNeuronsOtherLayers] = useState<number | undefined>(undefined);
   const [epochs, setEpochs] = useState<number | undefined>(undefined);
   const [selectedFolder, setSelectedFolder] = useState<FileList | null>(null);
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
+
+  // Funkcija za dobijanje današnjeg datuma u formatu YYYY-MM-DD
+  const getTodayDate = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
 
   const handleFolderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -37,11 +48,18 @@ export default function TrainModel() {
   };
 
   const handleTrain = () => {
+    if (new Date(startDate) >= new Date(endDate)) {
+      alert("Krajnji datum mora biti veći od početnog datuma.");
+      return;
+    }
+
     const hyperparameters = {
       layers: layers || null,
       neuronsFirstLayer: neuronsFirstLayer || null,
-      neuronsOtherLayers: neuronsFirstLayer || null,
+      neuronsOtherLayers: neuronsOtherLayers || null,
       epochs: epochs || null,
+      startDate: startDate || null,
+      endDate: endDate || null,
     };
 
     fetch("http://localhost:5000/api/train", {
@@ -60,6 +78,9 @@ export default function TrainModel() {
       });
   };
 
+  // Provera da li su oba datuma izabrana i da li je krajnji datum veći od početnog
+  const isTrainButtonDisabled = !startDate || !endDate || new Date(startDate) >= new Date(endDate);
+
   return (
     <div className="flex justify-center items-center min-h-screen p-6 bg-gray-900 text-white">
       <div className="w-full max-w-4xl bg-gray-800 shadow-lg rounded-lg p-8">
@@ -67,8 +88,8 @@ export default function TrainModel() {
 
         <div className="mb-8">
           <h2 className="text-xl font-semibold mb-4">Upload Data</h2>
-          <div className="flex items-center gap-4"> {/* Dodajemo flex i gap za razmak */}
-            <label className="flex-1"> {/* Omogućava da polje za odabir zauzme dostupan prostor */}
+          <div className="flex items-center gap-4">
+            <label className="flex-1">
               <span className="font-medium">Upload Folder:</span>
               <input
                 type="file"
@@ -132,9 +153,37 @@ export default function TrainModel() {
             />
           </label>
 
+          <label className="block">
+            <span className="font-medium">Start Date:</span>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              max={getTodayDate()} // Onemogućava buduće datume
+              className="w-full p-4 border border-gray-600 bg-gray-700 rounded-lg text-white"
+            />
+          </label>
+
+          <label className="block">
+            <span className="font-medium">End Date:</span>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              max={getTodayDate()} // Onemogućava buduće datume
+              min={startDate} // Krajnji datum ne može biti pre početnog
+              className="w-full p-4 border border-gray-600 bg-gray-700 rounded-lg text-white"
+            />
+          </label>
+
           <button
             onClick={handleTrain}
-            className="w-full mt-6 bg-blue-600 text-white p-4 rounded-lg transition duration-300 hover:bg-blue-500 col-span-2"
+            disabled={isTrainButtonDisabled}
+            className={`w-full mt-6 p-4 rounded-lg transition duration-300 col-span-2 ${
+              isTrainButtonDisabled
+                ? "bg-gray-500 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-500"
+            }`}
           >
             Start Training
           </button>
