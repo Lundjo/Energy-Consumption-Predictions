@@ -42,9 +42,20 @@ def train_model():
     data = request.get_json()
 
     layers = data.get('layers')
-    neurons_first_layer = data.get('neuronsFirstLayer')
-    neurons_other_layers = data.get('neuronsOtherLayers')
-    epochs = data.get('epochs')
+    if layers is None:
+        layers = 3
+
+    neurons_first_layer = data.get('neuronsFirstLayer', 17)
+    if neurons_first_layer is None:
+        neurons_first_layer = 17
+
+    neurons_other_layers = data.get('neuronsOtherLayers', 10)
+    if neurons_other_layers is None:
+        neurons_other_layers = 10
+
+    epochs = data.get('epochs', 100)
+    if epochs is None:
+        epochs = 100
 
     training.mainTraining(layers, neurons_first_layer, neurons_other_layers, epochs)
 

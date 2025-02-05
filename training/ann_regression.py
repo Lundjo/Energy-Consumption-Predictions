@@ -1,11 +1,14 @@
 from keras.layers import Dense
 from keras.models import Sequential
 from tensorflow import keras
-from ann_base import AnnBase
+from training.ann_base import AnnBase
 
 MODEL_NAME = 'current_model'
 
 class AnnRegression(AnnBase):
+    def __init__(self, epochs, number_of_hidden_layers, neurons_first_layer, neurons_other_layers):
+        super().__init__(epochs, number_of_hidden_layers, neurons_first_layer, neurons_other_layers)
+
     def get_model(self):
         model = Sequential()
         if self.number_of_hidden_layers > 0:

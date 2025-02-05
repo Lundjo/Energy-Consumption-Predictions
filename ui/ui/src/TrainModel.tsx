@@ -38,10 +38,10 @@ export default function TrainModel() {
 
   const handleTrain = () => {
     const hyperparameters = {
-      layers,
-      neuronsFirstLayer,
-      neuronsOtherLayers,
-      epochs,
+      layers: layers || null,
+      neuronsFirstLayer: neuronsFirstLayer || null,
+      neuronsOtherLayers: neuronsFirstLayer || null,
+      epochs: epochs || null,
     };
 
     fetch("http://localhost:5000/api/train", {

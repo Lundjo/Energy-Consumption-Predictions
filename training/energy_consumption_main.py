@@ -1,13 +1,13 @@
 import time
-from ann_regression import AnnRegression
-from custom_preparer import CustomPreparer
-from scorer import Scorer
+from training.ann_regression import AnnRegression
+from training.custom_preparer import CustomPreparer
+from training.scorer import Scorer
 import preprocessing.preprocessing
 
 NUMBER_OF_COLUMNS = 11
 SHARE_FOR_TRAINING = 0.85
 
-def mainTraining(neurons, neurons_first_layer, neurons_other_layers, epochs):
+def mainTraining(layers, neurons_first_layer, neurons_other_layers, epochs):
     # load the dataset
     dataframe = preprocessing.preprocessing.dataPreprocesing()
 
@@ -16,7 +16,7 @@ def mainTraining(neurons, neurons_first_layer, neurons_other_layers, epochs):
     trainX, trainY, testX, testY = preparer.prepare_for_training()
 
     # make predictions
-    ann_regression = AnnRegression()
+    ann_regression = AnnRegression(epochs, layers, neurons_first_layer, neurons_other_layers)
     time_begin = time.time();
     trainPredict, testPredict = ann_regression.compile_fit_predict(trainX, trainY, testX)
     time_end = time.time()

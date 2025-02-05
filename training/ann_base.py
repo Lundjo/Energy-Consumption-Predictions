@@ -1,28 +1,20 @@
 from re import VERBOSE
 
-
-EPOCH_NUMBER = 100
-BATCH_SIZE_NUMBER = 1
-COST_FUNCTION = 'mape'
-OPTIMIZER = 'nadam'
-KERNEL_INITIALIZER = 'he_normal'
-ACTIVATION_FUNCTION = 'leaky_relu'
-NUMBER_OF_HIDDEN_LAYERS = 3
-NUMBER_OF_NEURONS_IN_FIRST_HIDDEN_LAYER = 17
-NUMBER_OF_NEURONS_IN_OTHER_HIDDEN_LAYERS = 10
 VERBOSE = 1
 
 class AnnBase:
-    def __init__(self):
-        self.epoch_number = EPOCH_NUMBER
-        self.batch_size_number = BATCH_SIZE_NUMBER
-        self.cost_function = COST_FUNCTION
-        self.optimizer = OPTIMIZER
-        self.kernel_initializer = KERNEL_INITIALIZER
-        self.activation_function = ACTIVATION_FUNCTION
-        self.number_of_hidden_layers = NUMBER_OF_HIDDEN_LAYERS
-        self.number_of_neurons_in_first_hidden_layer = NUMBER_OF_NEURONS_IN_FIRST_HIDDEN_LAYER
-        self.number_of_neurons_in_other_hidden_layers = NUMBER_OF_NEURONS_IN_OTHER_HIDDEN_LAYERS
+    def __init__(self, epochs, number_of_hidden_layers, neurons_first_layer, neurons_other_layers,
+                 batch_size=1, cost_function='mape', optimizer='nadam', kernel_initializer='he_normal',
+                 activation_function='leaky_relu'):
+        self.epoch_number = epochs
+        self.batch_size_number = batch_size
+        self.cost_function = cost_function
+        self.optimizer = optimizer
+        self.kernel_initializer = kernel_initializer
+        self.activation_function = activation_function
+        self.number_of_hidden_layers = number_of_hidden_layers
+        self.number_of_neurons_in_first_hidden_layer = neurons_first_layer
+        self.number_of_neurons_in_other_hidden_layers = neurons_other_layers
         self.verbose = VERBOSE
 
     @property
