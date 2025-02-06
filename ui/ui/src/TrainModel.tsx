@@ -24,6 +24,38 @@ export default function TrainModel() {
     }
   };
 
+  const CHUNK_SIZE = 500; // Broj fajlova po chunku
+
+  const uploadInChunks = async () => {
+    if (!selectedFolder) return;
+
+    const filesArray = Array.from(selectedFolder);
+    for (let i = 0; i < filesArray.length; i += CHUNK_SIZE) {
+      const chunk = filesArray.slice(i, i + CHUNK_SIZE);
+      const formData = new FormData();
+
+      chunk.forEach((file) => {
+        formData.append("folder", file);
+      });
+
+      try {
+        const response = await fetch("http://localhost:5000/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await response.json();
+        console.log("Chunk upload response:", data);
+      } catch (error) {
+        console.error("Error uploading chunk:", error);
+        return;
+      }
+    }
+
+    console.log("All chunks uploaded successfully.");
+  };
+
+
   const handleUpload = () => {
     const formData = new FormData();
 
@@ -100,7 +132,7 @@ export default function TrainModel() {
             </label>
 
             <button
-              onClick={handleUpload}
+              onClick={uploadInChunks}
               className="bg-green-600 text-white p-4 rounded-lg transition duration-300 hover:bg-green-500 w-72 mt-5"
             >
               Upload Data
@@ -179,11 +211,10 @@ export default function TrainModel() {
           <button
             onClick={handleTrain}
             disabled={isTrainButtonDisabled}
-            className={`w-full mt-6 p-4 rounded-lg transition duration-300 col-span-2 ${
-              isTrainButtonDisabled
+            className={`w-full mt-6 p-4 rounded-lg transition duration-300 col-span-2 ${isTrainButtonDisabled
                 ? "bg-gray-500 cursor-not-allowed"
                 : "bg-blue-600 hover:bg-blue-500"
-            }`}
+              }`}
           >
             Start Training
           </button>

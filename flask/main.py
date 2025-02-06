@@ -4,6 +4,7 @@ from flask_cors import CORS
 import pandas
 from database.database import insert_data as insert
 import training.energy_consumption_main as training
+from waitress import serve
 
 app = Flask(__name__)
 CORS(app)  # Omogućava CORS za komunikaciju između frontenda i backenda
@@ -15,16 +16,14 @@ def upload_files():
     if not files:
         return jsonify({"error": "Nijedan fajl nije pronađen"}), 400
 
-    sent = False
     dl = pd.DataFrame()
     dw = pd.DataFrame()
-    saved_files = []
 
     for file in files:
         if file.filename.endswith('.csv'):
             df = pandas.read_csv(file, engine='python', sep=',')
             df.columns = df.columns.str.lower().str.replace(' ', '_')
-            if(df.shape[1] == 5):
+            if df.shape[1] == 5:
                 df['time_stamp'] = pd.to_datetime(df['time_stamp'])
                 df_filtered = df[df['time_stamp'].dt.minute == 0].astype(str)
                 dl = pd.concat([dl, df_filtered], ignore_index=True)
@@ -33,17 +32,11 @@ def upload_files():
 
     if not dl.empty:
         insert(dl, 'load_data')
-        sent = True
     if not dw.empty:
         insert(dw, 'weather_data')
-        sent = True
-    if not sent:
-        return jsonify({"error": "Samo CSV fajlovi su dozvoljeni"}), 400
 
-    return jsonify({
-        "message": "Fajlovi su uspešno uploadovani",
-        "saved_files": saved_files
-    }), 200
+    return jsonify({"message": "Chunk uploaded successfully"}), 200
+
 
 @app.route('/api/train', methods=['POST'])
 def train_model():
@@ -71,5 +64,4 @@ def train_model():
         "message": "Model training started"
     }), 200
 
-if __name__ == '__main__':
-    app.run(debug=True)
+serve(app, host="0.0.0.0", port=5000, max_request_body_size=1073741824)
