@@ -58,7 +58,7 @@ def train_model():
     if epochs is None:
         epochs = 100
 
-    training.mainTraining(layers, neurons_first_layer, neurons_other_layers, epochs)
+    training.mainTraining(layers, neurons_first_layer, neurons_other_layers, epochs, data.get('startDate'), data.get('endDate'))
 
     return jsonify({
         "message": "Model training started"

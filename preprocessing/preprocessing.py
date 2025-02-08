@@ -4,27 +4,31 @@ import matplotlib
 matplotlib.use('TkAgg')
 import database.database
 
-def dataPreprocesing():
-    df = database.database.get_data('weather_data')
-    dn = database.database.get_data('load_data')
+def dataPreprocesing(start, end):
+    df = database.database.get_data_in_range('weather_data', start, end, 'datetime')
+    dn = database.database.get_data_in_range('load_data', start, end, 'time_stamp')
+
+    df['datetime'] = pd.to_datetime(df['datetime'], errors='coerce')
+    dn['time_stamp'] = pd.to_datetime(dn['time_stamp'], errors='coerce')
+
     dn_nyc = dn[dn['name'] == "N.Y.C."]
     df = df.merge(dn_nyc[['time_stamp', 'load']], left_on='datetime', right_on='time_stamp', how='left')
     df = df.drop(columns=['time_stamp'])
-    df['datetime'] = pd.to_datetime(df['datetime'], errors='coerce')
 
     # brisanje praznika
     holidays = pd.read_excel("D:/Energy-Consumption-Predictions/US Holidays 2018-2021.xlsx")
     datetime_values_to_remove = pd.to_datetime(holidays.iloc[:, 2])
-    df_filtered = df[~df['datetime'].dt.date.isin(datetime_values_to_remove)]
+    df = df[~df['datetime'].dt.date.isin(datetime_values_to_remove)]
 
     df = df.drop_duplicates(subset=['datetime'], keep=False)
 
     # popunjavanje nedostajucih vrednosti
-    columns_to_check = ["temp", "feelslike", "windspeed", "visibility", "load"]
+    columns_to_check = ["temp", "windspeed", "load"]
+    df["load"] = pd.to_numeric(df["load"], errors="coerce")
+    df["load"] = df["load"].replace("", np.nan)
+    df["load"] = df["load"].replace("None", np.nan)
     df = df.dropna(subset=columns_to_check)
     df = df.drop(df.columns[0], axis=1)
-
-    print(df.to_string())
 
     # trazenje outliera
     def wisker(col):
@@ -45,7 +49,6 @@ def dataPreprocesing():
         df[i] = df[i].interpolate(method='linear', limit_direction='both', axis=0).fillna(method='ffill').fillna(
             method='bfill')
 
-    df['datetime'] = pd.to_datetime(df['datetime'])
     df['year'] = df['datetime'].dt.year
     df['month'] = df['datetime'].dt.month
     df['day'] = df['datetime'].dt.day
@@ -77,6 +80,14 @@ def dataPreprocesing():
     df['day_of_week_sin'] = np.sin(2 * np.pi * df['weekday'] / 7)
     df['day_of_week_cos'] = np.cos(2 * np.pi * df['weekday'] / 7)
 
+    df.drop(columns=['name', 'feelslike', 'uvindex', 'conditions', 'snowdepth', 'sealevelpressure',
+                     'cloudcover', 'winddir',
+                     'humidity', 'dew', 'precip', 'precipprob', 'preciptype', 'windgust', 'visibility', 'conditions',
+                     'snow', 'year', 'day', 'solarradiation', 'solarenergy', 'severerisk'], inplace=True)
+
+    load_column = df.pop('load')  # Izvlači kolonu 'Load' iz DataFrame-a
+    df['load'] = load_column  # Dodaje kolonu 'Load' kao poslednju
+
     df = df.groupby(['weekday', 'hour', 'month'], as_index=False).agg({
         'temp': 'mean',
         'windspeed': 'mean',
@@ -91,6 +102,6 @@ def dataPreprocesing():
         'load': 'mean'
     }).round(4)
 
-    df.drop(columns=['month', 'hour', 'weekday'], inplace=True)
+    df.drop(columns=['weekday', 'hour', 'month'], inplace=True)
 
     return df

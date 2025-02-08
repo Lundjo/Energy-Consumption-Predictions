@@ -72,17 +72,6 @@ def insert_data(df, table):
     conn.commit()
     conn.close()
 
-def get_data(table):
-    """ Vraća sve podatke iz tabele weather_data """
-    conn = sqlite3.connect(DB_PATH)
-
-    query = f'SELECT * FROM {table}'
-    df = pd.read_sql_query(query, conn)
-
-    conn.close()
-    return df
-
-
 def clear_database():
     """ Briše sve podatke iz svih tabela u bazi """
     conn = sqlite3.connect(DB_PATH)
@@ -102,3 +91,18 @@ def clear_database():
     conn.close()
 
     print("Baza je uspešno obrisana.")
+
+def get_data_in_range(table, start_date, end_date, date_column):
+    conn = sqlite3.connect(DB_PATH)
+
+    # SQL upit za filtriranje podataka na osnovu datuma
+    query = f'''
+    SELECT * FROM {table}
+    WHERE {date_column} >= ? AND {date_column} <= ?
+    '''
+
+    # Izvršavanje upita sa parametrima
+    df = pd.read_sql_query(query, conn, params=(start_date, end_date))
+
+    conn.close()
+    return df

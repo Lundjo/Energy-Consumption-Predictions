@@ -7,9 +7,9 @@ import preprocessing.preprocessing
 NUMBER_OF_COLUMNS = 11
 SHARE_FOR_TRAINING = 0.85
 
-def mainTraining(layers, neurons_first_layer, neurons_other_layers, epochs):
+def mainTraining(layers, neurons_first_layer, neurons_other_layers, epochs, start, end):
     # load the dataset
-    dataframe = preprocessing.preprocessing.dataPreprocesing()
+    dataframe = preprocessing.preprocessing.dataPreprocesing(start, end)
 
     # prepare data
     preparer = CustomPreparer(dataframe, NUMBER_OF_COLUMNS, SHARE_FOR_TRAINING);

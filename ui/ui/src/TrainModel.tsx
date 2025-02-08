@@ -55,30 +55,6 @@ export default function TrainModel() {
     console.log("All chunks uploaded successfully.");
   };
 
-
-  const handleUpload = () => {
-    const formData = new FormData();
-
-    if (selectedFolder) {
-      Array.from(selectedFolder).forEach((file) => {
-        formData.append("folder", file);
-      });
-    }
-
-    // Call backend API to upload files/folder
-    fetch("http://localhost:5000/api/upload", {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Success:", data);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-  };
-
   const handleTrain = () => {
     if (new Date(startDate) >= new Date(endDate)) {
       alert("Krajnji datum mora biti veći od početnog datuma.");
