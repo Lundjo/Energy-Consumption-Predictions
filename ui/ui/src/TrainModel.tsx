@@ -9,6 +9,7 @@ export default function TrainModel() {
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
   const [lastMessage, setLastMessage] = useState<string>(""); // Stanje za poslednju poruku
+  const [isProcessing, setIsProcessing] = useState<boolean>(false); // Stanje za indikaciju obrade
 
   const getTodayDate = () => {
     const today = new Date();
@@ -29,6 +30,7 @@ export default function TrainModel() {
   const uploadInChunks = async () => {
     if (!selectedFolder) return;
 
+    setIsProcessing(true); // Postavite stanje obrade na true
     var success = false;
 
     const filesArray = Array.from(selectedFolder);
@@ -54,6 +56,7 @@ export default function TrainModel() {
       } catch (error) {
         console.error("Error uploading chunk:", error);
         setLastMessage("Error uploading chunk"); // Postavite poruku o grešci
+        setIsProcessing(false); // Postavite stanje obrade na false u slučaju greške
         return;
       }
     }
@@ -63,6 +66,7 @@ export default function TrainModel() {
       console.log("All chunks uploaded successfully.");
     }
     
+    setIsProcessing(false); // Postavite stanje obrade na false nakon završetka
   };
 
   const handleTrain = () => {
@@ -70,6 +74,8 @@ export default function TrainModel() {
       alert("Krajnji datum mora biti veći od početnog datuma.");
       return;
     }
+
+    setIsProcessing(true); // Postavite stanje obrade na true
 
     const hyperparameters = {
       layers: layers || null,
@@ -95,13 +101,17 @@ export default function TrainModel() {
       .catch((error) => {
         setLastMessage("Error training model"); // Postavite poruku o grešci
         console.error("Error:", error);
+      })
+      .finally(() => {
+        setIsProcessing(false); // Postavite stanje obrade na false nakon završetka
       });
   };
 
   const isTrainButtonDisabled = !startDate || !endDate || new Date(startDate) >= new Date(endDate);
+  const isUploadButtonDisabled = !selectedFolder || isProcessing; // Onemogući dugme ako nije izabran folder ili ako je u toku obrada
 
   return (
-    <div className="flex justify-center items-center min-h-screen p-6 bg-gray-900 text-white">
+    <div className={`flex justify-center items-center min-h-screen p-6 bg-gray-900 text-white ${isProcessing ? "cursor-wait" : "cursor-auto"}`}>
       <div className="w-full max-w-4xl bg-gray-800 shadow-lg rounded-lg p-8">
         <h1 className="text-3xl font-bold text-center mb-8">Train Your Model</h1>
 
@@ -126,9 +136,10 @@ export default function TrainModel() {
 
             <button
               onClick={uploadInChunks}
-              className="bg-green-600 text-white p-4 rounded-lg transition duration-300 hover:bg-green-500 w-72 mt-5"
+              disabled={isUploadButtonDisabled} // Onemogući dugme ako nije izabran folder
+              className={`bg-green-600 text-white p-4 rounded-lg transition duration-300 hover:bg-green-500 w-72 mt-5 ${isUploadButtonDisabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
             >
-              Upload Data
+              {isProcessing ? "Uploading..." : "Upload Data"}
             </button>
           </div>
         </div>
@@ -203,17 +214,22 @@ export default function TrainModel() {
 
           <button
             onClick={handleTrain}
-            disabled={isTrainButtonDisabled}
-            className={`w-full mt-6 p-4 rounded-lg transition duration-300 col-span-2 ${isTrainButtonDisabled
+            disabled={isTrainButtonDisabled || isProcessing}
+            className={`w-full mt-6 p-4 rounded-lg transition duration-300 col-span-2 ${isTrainButtonDisabled || isProcessing
                 ? "bg-gray-500 cursor-not-allowed"
                 : "bg-blue-600 hover:bg-blue-500"
               }`}
           >
-            Start Training
+            {isProcessing ? "Training..." : "Start Training"}
           </button>
         </div>
 
-        
+        {/* Dodajte spinner ili drugi vizuelni indikator */}
+        {isProcessing && (
+          <div className="flex justify-center mt-6">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-200"></div>
+          </div>
+        )}
       </div>
     </div>
   );
