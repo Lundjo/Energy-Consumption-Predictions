@@ -1,4 +1,7 @@
 import time
+
+import pandas as pd
+
 from training.ann_regression import AnnRegression
 from training.custom_preparer import CustomPreparer
 from training.scorer import Scorer
@@ -10,6 +13,9 @@ SHARE_FOR_TRAINING = 0.85
 def mainTraining(layers, neurons_first_layer, neurons_other_layers, epochs, start, end):
     # load the dataset
     dataframe = preprocessing.preprocessing.dataPreprocesing(start, end)
+
+    if(dataframe.empty):
+        return False
 
     # prepare data
     preparer = CustomPreparer(dataframe, NUMBER_OF_COLUMNS, SHARE_FOR_TRAINING);
@@ -32,3 +38,5 @@ def mainTraining(layers, neurons_first_layer, neurons_other_layers, epochs, star
     print('Test Score: %.2f MAPE' % (testScore))
 
     ann_regression.model.save('D:/model.keras')
+
+    return True

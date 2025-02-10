@@ -14,7 +14,7 @@ app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 1024
 def upload_files():
     files = request.files.getlist('folder')
     if not files:
-        return jsonify({"error": "Nijedan fajl nije pronađen"}), 400
+        return jsonify({"error": "No files have been found"}), 400
 
     dl = pd.DataFrame()
     dw = pd.DataFrame()
@@ -34,6 +34,8 @@ def upload_files():
         insert(dl, 'load_data')
     if not dw.empty:
         insert(dw, 'weather_data')
+    if dl.empty and dw.empty:
+        return jsonify({"message": "No csv files found"}), 400
 
     return jsonify({"message": "Chunk uploaded successfully"}), 200
 
@@ -58,10 +60,15 @@ def train_model():
     if epochs is None:
         epochs = 100
 
-    training.mainTraining(layers, neurons_first_layer, neurons_other_layers, epochs, data.get('startDate'), data.get('endDate'))
+    finished = training.mainTraining(layers, neurons_first_layer, neurons_other_layers, epochs, data.get('startDate'), data.get('endDate'))
 
-    return jsonify({
-        "message": "Model training started"
-    }), 200
+    if finished:
+        return jsonify({
+            "message": "Model trainined"
+        }), 200
+    else:
+        return jsonify({
+            "message": "Model could not be trained"
+        }), 400
 
 serve(app, host="0.0.0.0", port=5000, max_request_body_size=1073741824)

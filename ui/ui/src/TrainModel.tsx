@@ -8,8 +8,8 @@ export default function TrainModel() {
   const [selectedFolder, setSelectedFolder] = useState<FileList | null>(null);
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
+  const [lastMessage, setLastMessage] = useState<string>(""); // Stanje za poslednju poruku
 
-  // Funkcija za dobijanje današnjeg datuma u formatu YYYY-MM-DD
   const getTodayDate = () => {
     const today = new Date();
     const year = today.getFullYear();
@@ -24,10 +24,12 @@ export default function TrainModel() {
     }
   };
 
-  const CHUNK_SIZE = 500; // Broj fajlova po chunku
+  const CHUNK_SIZE = 500;
 
   const uploadInChunks = async () => {
     if (!selectedFolder) return;
+
+    var success = false;
 
     const filesArray = Array.from(selectedFolder);
     for (let i = 0; i < filesArray.length; i += CHUNK_SIZE) {
@@ -45,14 +47,22 @@ export default function TrainModel() {
         });
 
         const data = await response.json();
+        setLastMessage(data.message); // Postavite poslednju poruku
         console.log("Chunk upload response:", data);
+        if(response.ok)
+          success = true;
       } catch (error) {
         console.error("Error uploading chunk:", error);
+        setLastMessage("Error uploading chunk"); // Postavite poruku o grešci
         return;
       }
     }
 
-    console.log("All chunks uploaded successfully.");
+    if(success){
+      setLastMessage("All chunks uploaded successfully."); // Postavite poruku o uspehu
+      console.log("All chunks uploaded successfully.");
+    }
+    
   };
 
   const handleTrain = () => {
@@ -79,14 +89,15 @@ export default function TrainModel() {
     })
       .then((response) => response.json())
       .then((data) => {
+        setLastMessage(data.message); // Postavite poslednju poruku
         console.log("Success:", data);
       })
       .catch((error) => {
+        setLastMessage("Error training model"); // Postavite poruku o grešci
         console.error("Error:", error);
       });
   };
 
-  // Provera da li su oba datuma izabrana i da li je krajnji datum veći od početnog
   const isTrainButtonDisabled = !startDate || !endDate || new Date(startDate) >= new Date(endDate);
 
   return (
@@ -94,8 +105,14 @@ export default function TrainModel() {
       <div className="w-full max-w-4xl bg-gray-800 shadow-lg rounded-lg p-8">
         <h1 className="text-3xl font-bold text-center mb-8">Train Your Model</h1>
 
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Upload Data</h2>
+        {/* Prikaz poslednje poruke */}
+        {lastMessage && (
+          <div className="mt-6 p-0 bg-gray-700 rounded-lg">
+            <p className="text-center text-lg font-semibold"> {lastMessage}</p>
+          </div>
+        )}
+
+        <div className="mb-6 mt-6">
           <div className="flex items-center gap-4">
             <label className="flex-1">
               <span className="font-medium">Upload Folder:</span>
@@ -167,7 +184,7 @@ export default function TrainModel() {
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              max={getTodayDate()} // Onemogućava buduće datume
+              max={getTodayDate()}
               className="w-full p-4 border border-gray-600 bg-gray-700 rounded-lg text-white"
             />
           </label>
@@ -178,8 +195,8 @@ export default function TrainModel() {
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              max={getTodayDate()} // Onemogućava buduće datume
-              min={startDate} // Krajnji datum ne može biti pre početnog
+              max={getTodayDate()}
+              min={startDate}
               className="w-full p-4 border border-gray-600 bg-gray-700 rounded-lg text-white"
             />
           </label>
@@ -195,6 +212,8 @@ export default function TrainModel() {
             Start Training
           </button>
         </div>
+
+        
       </div>
     </div>
   );

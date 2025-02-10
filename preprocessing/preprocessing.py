@@ -8,6 +8,11 @@ def dataPreprocesing(start, end):
     df = database.database.get_data_in_range('weather_data', start, end, 'datetime')
     dn = database.database.get_data_in_range('load_data', start, end, 'time_stamp')
 
+    if df.empty:
+        return df
+    elif dn.empty:
+        return dn
+
     df['datetime'] = pd.to_datetime(df['datetime'], errors='coerce')
     dn['time_stamp'] = pd.to_datetime(dn['time_stamp'], errors='coerce')
 
