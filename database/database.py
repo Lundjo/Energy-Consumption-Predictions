@@ -49,6 +49,15 @@ def createDB():
     )
     ''')
 
+    # Tabela sa predikcijama
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS predicted_loads (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            datetime DATETIME,
+            predicted_load REAL
+        )
+        ''')
+
     # Čuvanje promena i zatvaranje konekcije
     conn.commit()
     conn.close()

@@ -1,18 +1,21 @@
 import pandas as pd
+import database.database
 
 # Učitajmo podatke iz fajlova
 predicted_df = pd.read_csv('predicted_load.csv')
-actual_df = pd.read_csv('C:/Energy-Consumption-Predictions/final_output.csv')
+start = predicted_df['datetime'].iloc[0]
+end = predicted_df['datetime'].iloc[-1]
+actual_df = database.database.get_data_in_range('load_data', start, end, 'time_stamp')
 
 # Osiguravamo da su kolone datetime u istom formatu za spajanje
 predicted_df['datetime'] = pd.to_datetime(predicted_df['datetime'])
-actual_df['datetime'] = pd.to_datetime(actual_df['datetime'])
+actual_df['datetime'] = pd.to_datetime(actual_df['time_stamp'])
 
 # Spajanje na osnovu datetime kolone
-merged_df = predicted_df.merge(actual_df[['datetime', 'Load']], on='datetime', how='left')
+merged_df = predicted_df.merge(actual_df[['datetime', 'load']], on='datetime', how='left')
 
 # Preimenujemo kolonu load iz new_output.csv u actual_load
-merged_df.rename(columns={'Load': 'actual_load'}, inplace=True)
+merged_df.rename(columns={'load': 'actual_load'}, inplace=True)
 
 # Proverimo da li postoje prazne vrednosti u actual_load
 if merged_df['actual_load'].isnull().any():

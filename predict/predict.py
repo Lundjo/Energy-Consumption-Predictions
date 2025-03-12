@@ -2,7 +2,9 @@ import pandas as pd
 import numpy as np
 from tensorflow.keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
-import preprocessing.preprocessing
+import preprocessing.preprocessing as pp
+import database.database
+
 
 def preprocessing(df, training_data):
     df['datetime'] = pd.to_datetime(df['datetime'])
@@ -37,7 +39,7 @@ def preprocessing(df, training_data):
     df['day_of_week_sin'] = np.sin(2 * np.pi * df['weekday'] / 7)
     df['day_of_week_cos'] = np.cos(2 * np.pi * df['weekday'] / 7)
 
-    df['load'] = training_data['Load'].median()
+    df['load'] = training_data['load'].median()
 
     df.drop(columns=['datetime', 'uvindex', 'conditions', 'snowdepth', 'sealevelpressure', 'winddir', 'solarenergy', 'preciptype', 'severerisk',
                      'humidity', 'dew', 'hour', 'precip', 'snow', 'name', 'precipprob', 'windgust', 'solarradiation', 'weekday', 'month', 'cloudcover'], inplace=True)
@@ -48,17 +50,15 @@ def preprocessing(df, training_data):
     return df
 
 
-def test(input):
+def test(start, end):
     # Učitavanje sačuvanog modela
     model = load_model('D:/Energy-Consumption-Predictions/model.keras')
+    new_dataframe = database.database.get_data_in_range('weather_data', start, end, 'datetime')
 
     # Učitavanje novih podataka
-    training_data = preprocessing.preprocessing.dataPreprocesing()
-    new_dataframe = preprocessing(input, training_data)
+    training_data = pp.dataPreprocesing(start, end)
+    new_dataframe = preprocessing(new_dataframe, training_data)
 
-    if new_dataframe.isnull().any().any():
-        print("Učitani podaci sadrže NaN vrednosti")
-        print(new_dataframe.isnull().sum())
     # Priprema skalera (isti kao tokom treniranja)
     scaler = MinMaxScaler(feature_range=(0, 1))
     scaler.fit_transform(training_data)
@@ -91,7 +91,9 @@ def test(input):
     data_original = scaler.inverse_transform(new_data_scaled)
 
     predictions = data_original[:, -1]
+    data = database.database.get_data_in_range('weather_data', start, end, 'datetime')
 
-    # Ispis rezultata
-    print("Predikcije na novim podacima:")
-    print(predictions)
+    df = data[['datetime']].copy()
+    df['predicted_load'] = predictions
+    df.to_csv('predicted_load.csv', index=False)
+    database.database.insert_data(df, 'predicted_loads')
