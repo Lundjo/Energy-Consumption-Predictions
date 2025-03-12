@@ -4,6 +4,7 @@ from tensorflow.keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
 import preprocessing.preprocessing as pp
 import database.database
+import scorer
 
 
 def preprocessing(df, training_data):
@@ -56,7 +57,8 @@ def test(start, end):
     new_dataframe = database.database.get_data_in_range('weather_data', start, end, 'datetime')
 
     # Učitavanje novih podataka
-    training_data = pp.dataPreprocesing(start, end)
+    training_data = pp.dataPreprocesing('2018-01-01T00:00:00', '2021-09-06T00:00:00')
+    #training_data.to_csv('training.csv', index=False)
     new_dataframe = preprocessing(new_dataframe, training_data)
 
     # Priprema skalera (isti kao tokom treniranja)
@@ -97,3 +99,4 @@ def test(start, end):
     df['predicted_load'] = predictions
     df.to_csv('predicted_load.csv', index=False)
     database.database.insert_data(df, 'predicted_loads')
+    scorer.score(df)
