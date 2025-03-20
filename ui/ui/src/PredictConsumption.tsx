@@ -43,7 +43,7 @@ export default function PredictConsumption() {
       startDate: startDate || null,
       endDate: endDate || null,
       city: selectedCity || null,
-      modelType: modelType, // Dodajemo modelType u podatke
+      modelType: modelType,
     };
 
     fetch("http://localhost:5000/api/predict", {
@@ -87,7 +87,7 @@ export default function PredictConsumption() {
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              max={getTodayDate()}
+              max={endDate || getTodayDate()}
               className="w-full p-4 border border-gray-600 bg-gray-700 rounded-lg text-white"
             />
           </label>
@@ -98,8 +98,8 @@ export default function PredictConsumption() {
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              max={getTodayDate()}
               min={startDate}
+              max={startDate ? new Date(new Date(startDate).getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0] : getTodayDate()}
               className="w-full p-4 border border-gray-600 bg-gray-700 rounded-lg text-white"
             />
           </label>
@@ -125,8 +125,8 @@ export default function PredictConsumption() {
               onClick={() => handlePredict("new")}
               disabled={isPredictButtonDisabled || isProcessing}
               className={`w-full p-4 rounded-lg transition duration-300 ${isPredictButtonDisabled || isProcessing
-                ? "bg-gray-500 cursor-not-allowed"
-                : "bg-green-600 hover:bg-green-500"
+                  ? "bg-gray-500 cursor-not-allowed"
+                  : "bg-green-600 hover:bg-green-500"
                 }`}
             >
               {isProcessing ? "Predicting..." : "Predict Using New Model"}
@@ -136,8 +136,8 @@ export default function PredictConsumption() {
               onClick={() => handlePredict("standard")}
               disabled={isPredictButtonDisabled || isProcessing}
               className={`w-full p-4 rounded-lg transition duration-300 ${isPredictButtonDisabled || isProcessing
-                ? "bg-gray-500 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-500"
+                  ? "bg-gray-500 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-500"
                 }`}
             >
               {isProcessing ? "Predicting..." : "Predict Using Standard Model"}
