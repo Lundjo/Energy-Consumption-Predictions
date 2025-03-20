@@ -1,11 +1,15 @@
-
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import TrainModel from "./TrainModel";
+import PredictConsumption from "./PredictConsumption";
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-100">
-      <TrainModel />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<TrainModel />} />
+        <Route path="/predict" element={<PredictConsumption />} />
+      </Routes>
+    </Router>
   );
 }
 

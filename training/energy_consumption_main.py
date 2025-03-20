@@ -37,6 +37,6 @@ def mainTraining(layers, neurons_first_layer, neurons_other_layers, epochs, star
     print('Train Score: %.2f MAPE' % (trainScore))
     print('Test Score: %.2f MAPE' % (testScore))
 
-    ann_regression.model.save('D:/model.keras')
+    ann_regression.model.save('D:/Energy-Consumption-Predictions/newmodel.keras')
 
     return True

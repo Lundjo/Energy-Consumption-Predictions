@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function TrainModel() {
   const [layers, setLayers] = useState<number | undefined>(undefined);
@@ -10,6 +11,8 @@ export default function TrainModel() {
   const [endDate, setEndDate] = useState<string>("");
   const [lastMessage, setLastMessage] = useState<string>(""); // Stanje za poslednju poruku
   const [isProcessing, setIsProcessing] = useState<boolean>(false); // Stanje za indikaciju obrade
+
+  const navigate = useNavigate();
 
   const getTodayDate = () => {
     const today = new Date();
@@ -97,6 +100,7 @@ export default function TrainModel() {
       .then((data) => {
         setLastMessage(data.message); // Postavite poslednju poruku
         console.log("Success:", data);
+        navigate("/predict");
       })
       .catch((error) => {
         setLastMessage("Error training model"); // Postavite poruku o grešci
