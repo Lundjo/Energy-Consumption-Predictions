@@ -101,17 +101,26 @@ def clear_database():
 
     print("Baza je uspešno obrisana.")
 
-def get_data_in_range(table, start_date, end_date, date_column):
+import sqlite3
+import pandas as pd
+
+def get_data_in_range(table, start_date, end_date, date_column, city_column=None, city=None):
     conn = sqlite3.connect(DB_PATH)
 
-    # SQL upit za filtriranje podataka na osnovu datuma
+    # SQL upit za filtriranje podataka na osnovu datuma i grada
     query = f'''
     SELECT * FROM {table}
     WHERE {date_column} >= ? AND {date_column} <= ?
     '''
 
+    # Dodajte grad u upit ako je prosleđen
+    params = [start_date, end_date]
+    if city_column and city:
+        query += f' AND {city_column} = ?'
+        params.append(city)
+
     # Izvršavanje upita sa parametrima
-    df = pd.read_sql_query(query, conn, params=(start_date, end_date))
+    df = pd.read_sql_query(query, conn, params=params)
 
     conn.close()
     return df

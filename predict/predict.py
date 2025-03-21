@@ -51,9 +51,13 @@ def preprocessing(df, training_data):
     return df
 
 
-def test(start, end):
+def test(start, end, city, model_type):
     # Učitavanje sačuvanog modela
-    model = load_model('D:/Energy-Consumption-Predictions/model.keras')
+    if(model_type == "standard"):
+        model = load_model('D:/Energy-Consumption-Predictions/model.keras')
+    else:
+        model = load_model('D:/Energy-Consumption-Predictions/newmodel.keras')
+
     new_dataframe = database.database.get_data_in_range('weather_data', start, end, 'datetime')
 
     # Učitavanje novih podataka
@@ -99,4 +103,4 @@ def test(start, end):
     df['predicted_load'] = predictions
     df.to_csv('predicted_load.csv', index=False)
     database.database.insert_data(df, 'predicted_loads')
-    scorer.score(df)
+    scorer.score(df, city)

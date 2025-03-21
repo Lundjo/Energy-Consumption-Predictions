@@ -88,13 +88,13 @@ def predict():
     # Odabir modela
     if model_type == "new":
         # Poziv novog modela
-        predict.test(start_date, end_date)
+        predict.test(start_date, end_date, city, model_type)
     elif model_type == "standard":
         # Poziv standardnog modela
-        predict.test(start_date, end_date)
+        predict.test(start_date, end_date, city, model_type)
     else:
         return jsonify({"message": "Invalid model type"}), 400
 
-    return jsonify({"message": f"Prediction for {city} from {start_date} to {end_date} using {model_type} model: {prediction}"})
+    return jsonify({"message": f"Prediction for {city} from {start_date} to {end_date} using {model_type}"})
 
 serve(app, host="0.0.0.0", port=5000, max_request_body_size=1073741824)
