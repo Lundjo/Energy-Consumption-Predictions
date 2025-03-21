@@ -54,8 +54,7 @@ export default function TrainModel() {
         const data = await response.json();
         setLastMessage(data.message); // Postavite poslednju poruku
         console.log("Chunk upload response:", data);
-        if(response.ok)
-          success = true;
+        if (response.ok) success = true;
       } catch (error) {
         console.error("Error uploading chunk:", error);
         setLastMessage("Error uploading chunk"); // Postavite poruku o grešci
@@ -64,11 +63,11 @@ export default function TrainModel() {
       }
     }
 
-    if(success){
+    if (success) {
       setLastMessage("All chunks uploaded successfully."); // Postavite poruku o uspehu
       console.log("All chunks uploaded successfully.");
     }
-    
+
     setIsProcessing(false); // Postavite stanje obrade na false nakon završetka
   };
 
@@ -219,10 +218,11 @@ export default function TrainModel() {
           <button
             onClick={handleTrain}
             disabled={isTrainButtonDisabled || isProcessing}
-            className={`w-full mt-6 p-4 rounded-lg transition duration-300 col-span-2 ${isTrainButtonDisabled || isProcessing
+            className={`w-full mt-6 p-4 rounded-lg transition duration-300 col-span-2 ${
+              isTrainButtonDisabled || isProcessing
                 ? "bg-gray-500 cursor-not-allowed"
                 : "bg-blue-600 hover:bg-blue-500"
-              }`}
+            }`}
           >
             {isProcessing ? "Training..." : "Start Training"}
           </button>
