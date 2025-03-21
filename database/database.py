@@ -34,6 +34,7 @@ def createDB():
         uvindex INTEGER,
         severerisk INTEGER,
         conditions TEXT
+        UNIQUE(datetime)
     )
     ''')
 
@@ -46,6 +47,7 @@ def createDB():
         name TEXT,
         ptid INTEGER,
         load REAL
+        UNIQUE(time_stamp, name)
     )
     ''')
 
@@ -55,6 +57,7 @@ def createDB():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             datetime DATETIME,
             predicted_load REAL
+            UNIQUE(datetime)
         )
         ''')
 
@@ -71,7 +74,7 @@ def insert_data(df, table):
 
     # Priprema SQL query-a
     placeholders = ", ".join(["?" for _ in column_names])
-    sql_query = f'INSERT INTO {table} ({", ".join(column_names)}) VALUES ({placeholders})'
+    sql_query = f'INSERT OR REPLACE INTO {table} ({", ".join(column_names)}) VALUES ({placeholders})'
 
     # Uzimanje vrednosti iz DataFrame-a kao liste torki
     values = df.itertuples(index=False, name=None)
