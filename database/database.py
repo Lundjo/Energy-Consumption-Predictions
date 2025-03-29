@@ -56,8 +56,9 @@ def createDB():
         CREATE TABLE IF NOT EXISTS predicted_loads (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             datetime DATETIME,
-            predicted_load REAL
-            UNIQUE(datetime)
+            name TEXT,
+            predicted_load REAL            
+            UNIQUE(datetime, name)
         )
         ''')
 
