@@ -33,7 +33,7 @@ def createDB():
         solarenergy REAL,
         uvindex INTEGER,
         severerisk INTEGER,
-        conditions TEXT
+        conditions TEXT,
         UNIQUE(datetime)
     )
     ''')
@@ -46,7 +46,7 @@ def createDB():
         time_zone TEXT,
         name TEXT,
         ptid INTEGER,
-        load REAL
+        load REAL,
         UNIQUE(time_stamp, name)
     )
     ''')
@@ -57,7 +57,7 @@ def createDB():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             datetime DATETIME,
             name TEXT,
-            predicted_load REAL            
+            predicted_load REAL,            
             UNIQUE(datetime, name)
         )
         ''')

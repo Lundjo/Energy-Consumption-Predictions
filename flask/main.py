@@ -86,12 +86,9 @@ def predict():
         return jsonify({"message": "Missing data"}), 400
 
     # Odabir modela
-    if model_type == "new":
+    if model_type == "new" or model_type == "standard":
         # Poziv novog modela
-        predict.test(start_date, end_date, city, model_type)
-    elif model_type == "standard":
-        # Poziv standardnog modela
-        predict.test(start_date, end_date, city, model_type)
+        df = predict.test(start_date, end_date, city, model_type)
     else:
         return jsonify({"message": "Invalid model type"}), 400
 

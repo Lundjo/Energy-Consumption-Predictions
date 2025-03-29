@@ -104,4 +104,4 @@ def test(start, end, city, model_type):
     df['name'] = city
     df.to_csv('predicted_load.csv', index=False)
     database.database.insert_data(df, 'predicted_loads')
-    scorer.score(df, city)
+    return scorer.score(df, city)

@@ -28,3 +28,5 @@ def score(predicted_df, name):
 
     print(merged_df.to_string())
     print(f"Mean Absolute Percentage Error (MAPE): {mape:.2f}%")
+
+    return merged_df
