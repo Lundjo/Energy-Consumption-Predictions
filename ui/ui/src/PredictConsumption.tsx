@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const cities = ["CAPITL", "CENTRL", "DUNWOD", "GENESE", "HUD VL", "LONGIL", "MHK VL", "MILLWD", "N.Y.C", "NORTH", "WEST"];
 
@@ -16,6 +17,8 @@ export default function PredictConsumption() {
     const day = String(today.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
+
+  const navigate = useNavigate();
 
   const handlePredict = (modelType: "new" | "standard") => {
     if (new Date(startDate) >= new Date(endDate)) {
@@ -55,7 +58,19 @@ export default function PredictConsumption() {
     })
       .then((response) => response.json())
       .then((data) => {
-        setLastMessage(data.message);
+        if (data.data) {
+          navigate("/results", {
+            state: {
+              data: JSON.parse(data.data),
+              startDate,
+              endDate,
+              city: selectedCity,
+              modelType,
+            },
+          });
+        } else {
+          setLastMessage(data.message);
+        }
         console.log("Success:", data);
       })
       .catch((error) => {
@@ -125,8 +140,8 @@ export default function PredictConsumption() {
               onClick={() => handlePredict("new")}
               disabled={isPredictButtonDisabled || isProcessing}
               className={`w-full p-4 rounded-lg transition duration-300 ${isPredictButtonDisabled || isProcessing
-                  ? "bg-gray-500 cursor-not-allowed"
-                  : "bg-green-600 hover:bg-green-500"
+                ? "bg-gray-500 cursor-not-allowed"
+                : "bg-green-600 hover:bg-green-500"
                 }`}
             >
               {isProcessing ? "Predicting..." : "Predict Using New Model"}
@@ -136,8 +151,8 @@ export default function PredictConsumption() {
               onClick={() => handlePredict("standard")}
               disabled={isPredictButtonDisabled || isProcessing}
               className={`w-full p-4 rounded-lg transition duration-300 ${isPredictButtonDisabled || isProcessing
-                  ? "bg-gray-500 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-500"
+                ? "bg-gray-500 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-500"
                 }`}
             >
               {isProcessing ? "Predicting..." : "Predict Using Standard Model"}
