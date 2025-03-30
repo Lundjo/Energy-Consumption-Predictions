@@ -5,7 +5,7 @@ import pandas
 from database.database import insert_data as insert
 import training.energy_consumption_main as training
 from waitress import serve
-import predict.predict as predict
+from predict.predict import test
 
 app = Flask(__name__)
 CORS(app)  # Omogućava CORS za komunikaciju između frontenda i backenda
@@ -88,10 +88,10 @@ def predict():
     # Odabir modela
     if model_type == "new" or model_type == "standard":
         # Poziv novog modela
-        df = predict.test(start_date, end_date, city, model_type)
+        df = test(start_date, end_date, city, model_type)
     else:
         return jsonify({"message": "Invalid model type"}), 400
 
-    return jsonify({"message": f"Prediction for {city} from {start_date} to {end_date} using {model_type}"})
+    return df.to_json(orient='records', date_format='iso')
 
 serve(app, host="0.0.0.0", port=5000, max_request_body_size=1073741824)
