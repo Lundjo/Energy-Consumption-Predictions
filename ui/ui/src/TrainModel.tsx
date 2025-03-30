@@ -95,11 +95,17 @@ export default function TrainModel() {
       },
       body: JSON.stringify(hyperparameters),
     })
-      .then((response) => response.json())
-      .then((data) => {
+      .then((response) => {
+        return response.json().then((data) => {
+          return { data, status: response.status };
+        });
+      })
+      .then(({ data, status }) => {
         setLastMessage(data.message); // Postavite poslednju poruku
-        console.log("Success:", data);
-        navigate("/predict");
+        console.log(data);
+        if (status === 200) {
+          navigate("/predict");
+        }
       })
       .catch((error) => {
         setLastMessage("Error training model"); // Postavite poruku o grešci
@@ -218,11 +224,10 @@ export default function TrainModel() {
           <button
             onClick={handleTrain}
             disabled={isTrainButtonDisabled || isProcessing}
-            className={`w-full mt-6 p-4 rounded-lg transition duration-300 col-span-2 ${
-              isTrainButtonDisabled || isProcessing
-                ? "bg-gray-500 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-500"
-            }`}
+            className={`w-full mt-6 p-4 rounded-lg transition duration-300 col-span-2 ${isTrainButtonDisabled || isProcessing
+              ? "bg-gray-500 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-500"
+              }`}
           >
             {isProcessing ? "Training..." : "Start Training"}
           </button>
