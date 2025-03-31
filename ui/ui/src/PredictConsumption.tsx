@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const cities = ["CAPITL", "CENTRL", "DUNWOD", "GENESE", "HUD VL", "LONGIL", "MHK VL", "MILLWD", "N.Y.C", "NORTH", "WEST"];
+const cities = ["CAPITL", "CENTRL", "DUNWOD", "GENESE", "HUD VL", "LONGIL", "MHK VL", "MILLWD", "N.Y.C.", "NORTH", "WEST"];
 
 export default function PredictConsumption() {
   const [startDate, setStartDate] = useState<string>("");
@@ -21,17 +21,17 @@ export default function PredictConsumption() {
   const navigate = useNavigate();
 
   const handlePredict = (modelType: "new" | "standard") => {
-    if (new Date(startDate) >= new Date(endDate)) {
-      alert("Krajnji datum mora biti veći od početnog datuma.");
+    if (new Date(startDate) > new Date(endDate)) {
+      alert("Krajnji datum mora biti jednak ili veći od početnog datuma.");
       return;
     }
 
     const startTimestamp = new Date(startDate).getTime();
     const endTimestamp = new Date(endDate).getTime();
-    const dateDifference = Math.abs((endTimestamp - startTimestamp) / (1000 * 60 * 60 * 24));
+    const dateDifference = Math.abs((endTimestamp - startTimestamp) / (1000 * 60 * 60 * 24)) + 1; // +1 da uključimo i endDate
 
     if (dateDifference > 7) {
-      alert("Razlika između datuma ne sme biti veća od 7 dana.");
+      alert("Maksimalno možete izabrati 7 dana.");
       return;
     }
 
@@ -82,7 +82,7 @@ export default function PredictConsumption() {
       });
   };
 
-  const isPredictButtonDisabled = !startDate || !endDate || new Date(startDate) >= new Date(endDate) || !selectedCity;
+  const isPredictButtonDisabled = !startDate || !endDate || new Date(startDate) > new Date(endDate) || !selectedCity;
 
   return (
     <div className={`flex justify-center items-center min-h-screen p-6 bg-gray-900 text-white ${isProcessing ? "cursor-wait" : "cursor-auto"}`}>
@@ -114,7 +114,11 @@ export default function PredictConsumption() {
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
               min={startDate}
-              max={startDate ? new Date(new Date(startDate).getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0] : getTodayDate()}
+              max={
+                startDate
+                  ? new Date(new Date(startDate).getTime() + 6 * 24 * 60 * 60 * 1000).toISOString().split("T")[0] // startDate + 6 dana = 7 dana ukupno
+                  : getTodayDate()
+              }
               className="w-full p-4 border border-gray-600 bg-gray-700 rounded-lg text-white"
             />
           </label>
