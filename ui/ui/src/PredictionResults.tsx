@@ -49,6 +49,11 @@ export default function PredictionResults() {
     }
   }, [location.state]);
 
+  // Calculate mean absolute percentage error if available
+  const mape = data[0]?.absolute_percentage_error
+    ? data.reduce((sum, item) => sum + (item.absolute_percentage_error || 0), 0) / data.length
+    : null;
+
   const chartData = {
     labels: data.map((item) => new Date(item.datetime).toLocaleString()),
     datasets: [
@@ -61,14 +66,14 @@ export default function PredictionResults() {
       },
       ...(data[0]?.actual_load
         ? [
-            {
-              label: "Actual Load",
-              data: data.map((item) => item.actual_load),
-              borderColor: "rgb(255, 99, 132)",
-              backgroundColor: "rgba(255, 99, 132, 0.5)",
-              tension: 0.1,
-            },
-          ]
+          {
+            label: "Actual Load",
+            data: data.map((item) => item.actual_load),
+            borderColor: "rgb(255, 99, 132)",
+            backgroundColor: "rgba(255, 99, 132, 0.5)",
+            tension: 0.1,
+          },
+        ]
         : []),
     ],
   };
@@ -125,12 +130,35 @@ export default function PredictionResults() {
         <h1 className="text-3xl font-bold mb-6">
           Prediction Results for {data[0].name}
         </h1>
-        
-        <div className="bg-gray-800 rounded-lg p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4">Chart</h2>
-          <div className="h-96">
-            <Line data={chartData} options={options} />
+
+        <div className="flex flex-col lg:flex-row gap-6 mb-6">
+          {/* Grafik - smanjujemo flex-1 na flex-[2] da bi greška zauzela više prostora */}
+          <div className="bg-gray-800 rounded-lg p-6 flex-[2]">
+            <h2 className="text-xl font-semibold mb-4">Chart</h2>
+            <div className="h-96">
+              <Line data={chartData} options={options} />
+            </div>
           </div>
+
+          {/* Novo: Poseban container za grešku sa većim dimenzijama */}
+          {mape !== null && (
+            <div className="bg-gray-800 rounded-lg p-6 flex-1 flex flex-col justify-center">
+              <div className="text-center space-y-4">
+                <h3 className="text-2xl font-semibold">Model Accuracy</h3>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-300">Mean Absolute Percentage Error</p>
+                  <p className="text-5xl font-bold text-red-400">
+                    {mape.toFixed(2)}%
+                  </p>
+                </div>
+                <div className="pt-4">
+                  <p className="text-xs text-gray-400">
+                    Lower values indicate better accuracy
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="bg-gray-800 rounded-lg p-6 mb-6">
