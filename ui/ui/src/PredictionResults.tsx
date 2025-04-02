@@ -26,7 +26,8 @@ interface PredictionData {
   datetime: string;
   name: string;
   predicted_load: number;
-  load?: number; // Opcionalno, ako postoji stvarna potrošnja
+  actual_load?: number;
+  absolute_percentage_error?: number;
 }
 
 export default function PredictionResults() {
@@ -36,12 +37,10 @@ export default function PredictionResults() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Ako dolazimo sa POST zahteva, podaci su već u location.state
     if (location.state?.data) {
       setData(location.state.data);
       setIsLoading(false);
     } else {
-      // Ako osvežavamo stranicu, možda treba povući podatke iz localStorage ili API-ja
       const savedData = localStorage.getItem("lastPrediction");
       if (savedData) {
         setData(JSON.parse(savedData));
@@ -60,11 +59,11 @@ export default function PredictionResults() {
         backgroundColor: "rgba(75, 192, 192, 0.5)",
         tension: 0.1,
       },
-      ...(data[0]?.load
+      ...(data[0]?.actual_load
         ? [
             {
               label: "Actual Load",
-              data: data.map((item) => item.load),
+              data: data.map((item) => item.actual_load),
               borderColor: "rgb(255, 99, 132)",
               backgroundColor: "rgba(255, 99, 132, 0.5)",
               tension: 0.1,
@@ -142,8 +141,11 @@ export default function PredictionResults() {
                 <tr className="bg-gray-700">
                   <th className="p-3 text-left">Date/Time</th>
                   <th className="p-3 text-left">Predicted Load</th>
-                  {data[0]?.load && (
+                  {data[0]?.actual_load && (
                     <th className="p-3 text-left">Actual Load</th>
+                  )}
+                  {data[0]?.absolute_percentage_error && (
+                    <th className="p-3 text-left">Error %</th>
                   )}
                 </tr>
               </thead>
@@ -157,8 +159,11 @@ export default function PredictionResults() {
                       {new Date(item.datetime).toLocaleString()}
                     </td>
                     <td className="p-3">{item.predicted_load.toFixed(2)}</td>
-                    {item.load && (
-                      <td className="p-3">{item.load.toFixed(2)}</td>
+                    {item.actual_load && (
+                      <td className="p-3">{item.actual_load.toFixed(2)}</td>
+                    )}
+                    {item.absolute_percentage_error && (
+                      <td className="p-3">{item.absolute_percentage_error.toFixed(2)}%</td>
                     )}
                   </tr>
                 ))}

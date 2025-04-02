@@ -58,7 +58,18 @@ export default function PredictConsumption() {
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data.data) {
+        if (Array.isArray(data)) {  // Ako je direktno niz (Flask default)
+          navigate("/results", {
+            state: {
+              data: data,  // Koristi direktno
+              startDate,
+              endDate,
+              city: selectedCity,
+              modelType,
+            },
+          });
+        } 
+        else if (data.data) {  // Ako je {data: "..."}
           navigate("/results", {
             state: {
               data: JSON.parse(data.data),
@@ -69,9 +80,8 @@ export default function PredictConsumption() {
             },
           });
         } else {
-          setLastMessage(data.message);
+          setLastMessage(data.message || "No data received");
         }
-        console.log("Success:", data);
       })
       .catch((error) => {
         setLastMessage("Error predicting consumption");
