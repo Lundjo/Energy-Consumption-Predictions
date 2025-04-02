@@ -105,13 +105,12 @@ export default function PredictionResults() {
     },
   };
 
-  const handleRetest = (modelType: "new" | "standard") => {
+  const handleRetest = () => {
     navigate("/predict", {
       state: {
         startDate: location.state?.startDate,
         endDate: location.state?.endDate,
         city: location.state?.city,
-        modelType,
       },
     });
   };
@@ -209,16 +208,10 @@ export default function PredictionResults() {
           </button>
           <div className="flex gap-4">
             <button
-              onClick={() => handleRetest("standard")}
+              onClick={() => handleRetest()}
               className="bg-blue-600 hover:bg-blue-500 px-6 py-3 rounded-lg transition"
             >
-              Retest with Standard Model
-            </button>
-            <button
-              onClick={() => handleRetest("new")}
-              className="bg-green-600 hover:bg-green-500 px-6 py-3 rounded-lg transition"
-            >
-              Retest with New Model
+              Retest
             </button>
           </div>
         </div>
