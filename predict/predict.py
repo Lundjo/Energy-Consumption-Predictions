@@ -11,7 +11,7 @@ import database.database
 import scorer
 
 
-def preprocessing(df, training_data):
+def preprocessing(df, training_data): #podaci se prave u istom obliku kao tokom predvidjanja
     df['datetime'] = pd.to_datetime(df['datetime'])
     df['month'] = df['datetime'].dt.month
     df['weekday'] = df['datetime'].dt.weekday
@@ -44,7 +44,7 @@ def preprocessing(df, training_data):
     df['day_of_week_sin'] = np.sin(2 * np.pi * df['weekday'] / 7)
     df['day_of_week_cos'] = np.cos(2 * np.pi * df['weekday'] / 7)
 
-    df['load'] = training_data['load'].median()
+    df['load'] = training_data['load'].median() #verovatno bespotrebno, mogla je samo da se stavi bilo koja vrednost
 
     df.drop(columns=['datetime', 'uvindex', 'conditions', 'snowdepth', 'sealevelpressure', 'winddir', 'solarenergy', 'preciptype', 'severerisk',
                      'humidity', 'dew', 'hour', 'precip', 'snow', 'name', 'precipprob', 'windgust', 'solarradiation', 'weekday', 'month', 'cloudcover'], inplace=True)
@@ -65,7 +65,7 @@ def test(start, end, city, model_type):
     new_dataframe = database.database.get_data_in_range('weather_data', start, end, 'datetime')
 
     # Učitavanje novih podataka
-    training_data = pp.dataPreprocesing('2018-01-01T00:00:00', '2021-09-06T00:00:00')
+    training_data = pp.dataPreprocesing('2018-01-01T00:00:00', '2021-09-06T00:00:00') #verovatno nije uopste potrebno
     new_dataframe = preprocessing(new_dataframe, training_data)
 
     # Priprema skalera (isti kao tokom treniranja)

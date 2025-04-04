@@ -14,7 +14,7 @@ def score(predicted_df, name):
     # Spajanje na osnovu datetime kolone
     merged_df = predicted_df.merge(actual_df[['datetime', 'load']], on='datetime', how='left')
 
-    # Preimenujemo kolonu load iz new_output.csv u actual_load
+    # Preimenujemo kolonu load u actual_load
     merged_df.rename(columns={'load': 'actual_load'}, inplace=True)
 
     # Proverimo da li postoje prazne vrednosti u actual_load

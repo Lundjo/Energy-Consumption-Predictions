@@ -26,7 +26,7 @@ def upload_files():
             df.columns = df.columns.str.lower().str.replace(' ', '_')
             if df.shape[1] == 5:
                 df['time_stamp'] = pd.to_datetime(df['time_stamp'])
-                df_filtered = df[df['time_stamp'].dt.minute == 0].astype(str)
+                df_filtered = df[df['time_stamp'].dt.minute == 0].astype(str) #cuvaju se samo okrugli sati iz load data
                 dl = pd.concat([dl, df_filtered], ignore_index=True)
             else:
                 dw = pd.concat([dw, df], ignore_index=True)
