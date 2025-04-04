@@ -111,7 +111,10 @@ export default function PredictConsumption() {
             <input
               type="date"
               value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
+              onChange={(e) => {
+                setStartDate(e.target.value);
+                setEndDate(""); // Reset end date when start date changes
+              }}
               max={endDate || getTodayDate()}
               className="w-full p-4 border border-gray-600 bg-gray-700 rounded-lg text-white"
             />

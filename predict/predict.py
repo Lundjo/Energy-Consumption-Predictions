@@ -106,6 +106,6 @@ def test(start, end, city, model_type):
     df = data[['datetime']].copy()
     df['predicted_load'] = predictions
     df['name'] = city
-    df.to_csv('predicted_load.csv', index=False)
+    df.to_csv('D:/Energy-Consumption-Predictions/predict/predicted_load.csv', index=False)
     database.database.insert_data(df, 'predicted_loads')
     return scorer.score(df, city)
