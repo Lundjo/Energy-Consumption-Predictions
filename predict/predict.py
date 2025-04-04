@@ -66,7 +66,6 @@ def test(start, end, city, model_type):
 
     # Učitavanje novih podataka
     training_data = pp.dataPreprocesing('2018-01-01T00:00:00', '2021-09-06T00:00:00')
-    #training_data.to_csv('training.csv', index=False)
     new_dataframe = preprocessing(new_dataframe, training_data)
 
     # Priprema skalera (isti kao tokom treniranja)
